@@ -1,0 +1,42 @@
+.sidemenu {
+    width: 240px;
+    background-color: #ffffff;
+    padding: 16px;
+    border-right: 1px solid #e8e8e8;
+}
+
+.sidemenu h2 {
+    font-size: 20px;
+    margin-bottom: 16px;
+    color: #1890ff;
+}
+
+.add-project {
+    background-color: #1890ff;
+    color: #fff;
+    border: none;
+    padding: 8px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    margin-bottom: 16px;
+}
+
+.project-menu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.project-menu li {
+    padding: 8px 12px;
+    cursor: pointer;
+    border-radius: 4px;
+    margin-bottom: 4px;
+    color: #333;
+}
+
+.project-menu li.active, .project-menu li:hover {
+    background-color: #e6f7ff;
+}

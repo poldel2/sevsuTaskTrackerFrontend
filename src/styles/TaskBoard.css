@@ -1,0 +1,362 @@
+.task-board {
+    display: flex;
+    flex-direction: column;
+    background-color: #f7f7f7;
+    margin: 1%;
+    overflow: hidden;
+    width: 100%;
+    height: 100%;
+}
+
+/* Заголовок */
+/* Заголовок проекта */
+.task-board-header {
+    display: flex;
+    align-items: center;
+    padding: 25px;
+    background-color: #eaeaea;
+    border-radius: 8px;
+    margin-bottom: 16px;
+}
+
+/* Информация о проекте */
+.project-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-left: 3%; /* Уменьшен отступ */
+    width: 100%;
+}
+
+.default-logo {
+    width: 70px;
+    height: 70px;
+    background: #184eff; /* Синий цвет из палитры Ant Design */
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-right: 1%;
+}
+
+.logo-letter {
+    color: white;
+    font-size: 40px;
+    font-weight: 600;
+    line-height: 1;
+    margin-top: -2px; /* Корректировка вертикального выравнивания */
+}
+
+.project-logo {
+    width: 48px;
+    height: 48px;
+    border-radius: 6px;
+    object-fit: cover;
+}
+
+/* Название проекта */
+.project-name {
+    font-size: 20px;
+    font-weight: bold;
+    margin-right: 3%;
+}
+
+/* Блок кнопок (Добавить задачу, Фильтр, Еще) */
+.task-actions {
+    display: flex;
+    align-items: center;
+    width: 80%; /* Фиксировано 60% ширины */
+    height: 36px; /* Высота уменьшена */
+    background-color: #e0e0e0;
+    border-radius: 12px;
+    overflow: hidden;
+
+}
+
+/* Кнопки */
+.task-action {
+    flex: 1;
+    padding: 8px 20px; /* Высота уменьшена */
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    background-color: transparent;
+    transition: background 0.2s;
+}
+
+/* При наведении */
+.task-action:hover {
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+/* Кнопка настроек справа */
+.task-settings {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 22px;
+    padding: 10px;
+    transition: transform 0.2s;
+}
+
+/* Анимация увеличения кнопки настроек при наведении */
+.task-settings:hover {
+    transform: scale(1.2);
+}
+
+
+/* Колонка задач */
+.task-column {
+    flex: 1;
+    background-color: rgba(218, 218, 218, 0.18);
+    padding: 16px;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: fit-content; /* Высота по содержимому */
+
+}
+
+/* Заголовки колонок */
+.task-column-title {
+    font-size: 16px;
+    font-weight: bold;
+    text-align: center;
+    padding: 222px; /* Увеличенная высота */
+    width: 92%;
+    border-radius: 12px;
+    position: relative;
+    background-color: rgba(0, 0, 0, 0.05); /* Полупрозрачный фон */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+/* Внутренний непрозрачный блок с текстом */
+.task-column-title span {
+    background: rgba(255, 255, 255, 0.9); /* Непрозрачный блок */
+    padding: 8px 16px;
+    border-radius: 50px;
+}
+
+/* Цвета заголовков */
+.title-0 { background-color: rgba(128, 128, 128, 0.3); color: black; }
+.title-1 { background-color: rgb(255, 245, 43); color: black; }
+.title-2 { background-color: rgb(73, 230, 73); color: white; }
+
+/* Элемент задачи */
+.task-item {
+    width: 100%;
+    background: white;
+    padding: 12px 12px 2px;
+
+    border-radius: 8px;
+    margin-top: 10px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    position: relative;
+    min-height:100px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-sizing: border-box;
+}
+
+/* Заголовок задачи: Название + приоритет */
+.task-header {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 12px;
+}
+
+/* Название задачи */
+.task-name {
+    font-weight: bold;
+    font-size: 14px;
+    margin-right: 8px;
+}
+
+/* Кружок приоритета */
+.task-priority {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+/* Футер задачи (для исполнителя) */
+.task-footer {
+    width: 100%;
+    display: flex;
+    align-items: flex-end;
+}
+
+/* Исполнитель */
+.task-assignee {
+    font-size: 12px;
+    color: gray;
+    margin-bottom: 5px;
+}
+
+/* Иконка редактирования */
+.task-edit-icon {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    color: gray;
+    transition: color 0.2s;
+}
+
+
+
+.task-edit-icon:hover {
+    color: black;
+}
+
+/* Блок с задачами + сайдбар */
+.task-content {
+    display: flex;
+    height: calc(100% - 100px);
+    gap: 16px;
+}
+
+/* 70% - блок задач */
+.task-columns {
+    display: flex;
+    flex-grow: 1;
+    width: 50%;
+    gap: 10%;
+    padding-top:10px;
+    overflow-x: auto;
+}
+
+.task-column-title {
+
+}
+
+/* 30% - боковой сайдбар */
+.task-view-sidebar {
+    width: 17%;
+    max-height: 75%;
+    background: #e0e0e0;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    border-radius: 12px;
+}
+
+/* Скроллбар */
+.task-view-sidebar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.task-view-sidebar::-webkit-scrollbar-thumb {
+    background: #b0b0b0;
+    border-radius: 6px;
+}
+
+
+.task-search {
+    display: flex;
+    align-items: center;
+    background: white;
+    border-radius: 6px;
+    padding: 5px 10px;
+    height: 100%;
+    margin-left: auto;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.search-input {
+    border: none;
+    outline: none;
+    font-size: 14px;
+    width: 100%;
+    background: transparent;
+    border-radius: 6px;
+    padding: 5px;
+}
+
+.search-icon {
+    font-size: 16px;
+    color: #888;
+    margin-left: 5px;
+}
+
+.task-column {
+    transition: background-color 0.3s ease-in-out;
+}
+
+.task-column.highlight {
+    background-color: rgba(0, 150, 255, 0.2);
+    border: 2px dashed rgba(0, 150, 255, 0.6);
+}
+
+.task-column-title {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 16px;
+    font-weight: bold;
+    border-radius: 8px;
+}
+
+.title-01 { background-color: rgba(128, 128, 128, 0.6); color: black; }
+.title-11 { background-color: rgb(250, 189, 6); color: black; }
+.title-21 { background-color: rgb(34, 182, 34); color: white; }
+
+.task-column-title-box {
+    width: 60%;
+    padding: 5px 10px;
+    text-align: center;
+    border-radius: 6px;
+    font-weight: bold;
+    opacity: 0.8;
+}
+
+.task-add-section {
+    width: 100%;
+    background: white;
+    border:none;
+    border-top: 1px solid #ccc;
+    padding: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    transition: background 0.2s ease-in-out;
+}
+
+.task-add-section:hover {
+    background: #f0f0f0;
+}
+
+.task-add-icon {
+    font-size: 14px;
+}
+
+.column-hover {
+    padding-bottom: 10%;
+    background-color: rgba(0, 0, 0, 0.05);
+    /*transition: background-color 2s ease-in-out;*/
+}
+
+.task-item.dragging {
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+.task-column-body {
+    /*max-height: 60vh;*/
+    /*overflow-y: auto;*/
+    width: 100%;
+}

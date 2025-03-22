@@ -1,0 +1,40 @@
+.task-view-sidebar {
+    background: #e0e0e0;
+    padding: 15px;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: stretch;
+    border-radius: 12px;
+    overflow-y: auto;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    align-self: flex-start;
+    height: 100%;
+
+    z-index: 1;
+}
+
+/* Скроллбар */
+.task-view-sidebar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.task-view-sidebar::-webkit-scrollbar-thumb {
+    background: #b0b0b0;
+    border-radius: 6px;
+}
+
+/* Элементы внутри TaskViewSidebar */
+.task-view-item {
+    padding: 15px;
+    border-bottom: 1px solid #ccc;
+    cursor: pointer;
+    text-align: center;
+    transition: background 0.2s;
+    border-radius: 8px;
+}
+
+.task-view-item:hover {
+    background: #d0d0d0;
+}

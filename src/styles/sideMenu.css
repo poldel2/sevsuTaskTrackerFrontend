@@ -1,0 +1,91 @@
+.side-menu {
+    width: 12%;
+    background-color: #f7f7f7;
+    padding: 20px;
+    border-right: 1px solid #ddd;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    transition: transform 0.3s ease-in-out;
+    min-width: 185px;
+}
+
+.side-menu.collapsed {
+    width:0;
+    transform: translateX(-100%);
+    min-width: 0;
+
+}
+
+.toggle-menu-btn {
+    position: absolute;
+    top: 10px;
+    right: -18px;
+    background: #fff;
+    border: 1px solid #ddd;
+    z-index: 10;
+}
+
+.side-menu-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    padding-left: 10px;
+}
+
+.side-menu-title {
+    font-size: 20px;
+    color: #333;
+    font-weight: bold;
+}
+
+.add-project-btn {
+    font-size: 14px;
+    color: #888;
+    transition: color 0.2s;
+}
+
+.add-project-btn:hover {
+    color: #000;
+}
+
+.project-list {
+    background-color: #eee;
+    padding: 10px;
+    border-radius: 6px;
+    min-height: 40px;
+}
+
+.project-item {
+    padding: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.project-item:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.project-item.selected {
+}
+
+.empty-project {
+    color: #aaa;
+    text-align: center;
+    padding: 10px;
+}
+
+.content-container {
+    flex: 1;
+    padding: 20px;
+
+}
+
+.ant-collapse-header{
+    font-size: 14px;
+}

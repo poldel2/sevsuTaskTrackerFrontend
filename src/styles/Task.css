@@ -1,0 +1,21 @@
+.task-board {
+    display: flex;
+    gap: 16px;
+    padding: 16px;
+}
+
+.task-column {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    width: 240px;
+}
+
+.task-column .ant-card-head {
+    background-color: #f0f2f5;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.task-column .ant-card-body {
+    padding: 16px;
+}

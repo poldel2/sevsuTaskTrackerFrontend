@@ -1,0 +1,17 @@
+body {
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+.app-container {
+    flex-direction: column;
+    height: 100vh;
+}
+.main-layout {
+    display: flex;
+    flex: 1;
+}
+.content-container {
+    flex: 1;
+    padding: 24px;
+    background-color: #e9ecef;
+}
