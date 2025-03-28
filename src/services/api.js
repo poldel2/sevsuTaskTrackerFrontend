@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://api.sevsutasktracker.ru';
+export const API_URL = import.meta.env.VITE_API_URL || 'http://api.sevsutasktracker.ru';
 
 const api = axios.create({
     baseURL: API_URL,
@@ -130,5 +130,54 @@ export const searchUsers = async (query) => {
     return await response.json();
 };
 
+export const approveTask = async (projectId, taskId, isTeacherApproval = false, comment = null) => {
+    const response = await api.post(`/projects/${projectId}/tasks/${taskId}/approve`, {
+        is_teacher_approval: isTeacherApproval,
+        comment: comment
+    });
+    return response.data;
+};
+
+export const rejectTask = async (projectId, taskId, feedback) => {
+    const response = await api.post(`/projects/${projectId}/tasks/${taskId}/reject`, {
+        feedback: feedback
+    });
+    return response.data;
+};
+
+export const submitForReview = async (projectId, taskId) => {
+    const response = await api.post(`/projects/${projectId}/tasks/${taskId}/submit-for-review`);
+    return response.data;
+};
+
+export const getProjectParticipantsReport = async (projectId) => {
+    const response = await api.get(`/projects/${projectId}/reports/participants`);
+    return response.data;
+};
+
+export const setParticipantManualGrade = async (projectId, userId, grade) => {
+    const response = await api.post(`/projects/${projectId}/participants/${userId}/grade?grade=${grade}`);
+    return response.data;
+};
+
+export const fetchTasks = async (projectId) => {
+    const response = await api.get(`/projects/${projectId}/tasks`);
+    return response.data;
+};
+
+export const updateTaskStatus = async (taskId, updateData) => {
+    const response = await api.patch(`/tasks/${taskId}/status`, updateData);
+    return response.data;
+};
+
+export const fetchTaskDetails = async (taskId) => {
+    const response = await api.get(`/tasks/${taskId}`);
+    return response.data;
+};
+
+export const deleteTask = async (taskId) => {
+    const response = await api.delete(`/tasks/${taskId}`);
+    return response.data;
+};
 
 export default api;

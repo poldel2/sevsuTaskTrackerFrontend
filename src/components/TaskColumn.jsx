@@ -31,7 +31,8 @@ export const TaskColumn = ({ column, tasks, draggingOver, activeTaskId }) => {
 
     const headerStyle = {
         backgroundColor: color,
-    }
+        cursor: 'grab'
+    };
 
     return (
         <div
@@ -41,15 +42,16 @@ export const TaskColumn = ({ column, tasks, draggingOver, activeTaskId }) => {
             }}
             style={style}
             className={`task-column ${isOver || draggingOver === id ? 'column-hover' : ''}`}
-            {...attributes}
-            {...listeners}
         >
-            <div className="task-column-title"
-                 style={headerStyle}
+            <div 
+                className="task-column-title"
+                style={headerStyle}
+                {...attributes}
+                {...listeners}
             >
                 {name}
-
             </div>
+
             <div className="task-column-body">
                 <SortableContext items={tasks.map(task => task.id)} strategy={verticalListSortingStrategy}>
                     {tasks.map(task => (

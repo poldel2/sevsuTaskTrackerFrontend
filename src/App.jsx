@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Modal, message, Form } from "antd";
 import TopMenu from "./components/TopMenu";
 import SideMenu from "./components/SideMenu";
@@ -7,23 +7,53 @@ import TaskForm from "./components/TaskForm";
 import "./styles/global.css";
 import "./styles/App.css";
 import {getProjects, addTask, addProject} from "./services/api";
+import { useLocation } from "react-router-dom";
 
 function App() {
     const [projects, setProjects] = useState([]);
     const [selectedProject, setSelectedProject] = useState(null);
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [form] = Form.useForm();
+    const location = useLocation();
+    const initialLoadCompleted = useRef(false);
+    const [isLoading, setIsLoading] = useState(true);
 
+    // Единый эффект для загрузки проектов и обработки выбранного проекта
     useEffect(() => {
-        getProjects()
-            .then((data) => {
+        const loadProjectsAndSetSelected = async () => {
+            if (initialLoadCompleted.current) return;
+            
+            setIsLoading(true);
+            try {
+                const data = await getProjects();
                 setProjects(data);
-                if (data.length > 0) {
-                    setSelectedProject(data[0]); // Выбираем первый проект по умолчанию
+                
+                // Если есть проект в location.state, устанавливаем его
+                if (location.state?.selectedProject) {
+                    setSelectedProject(location.state.selectedProject);
                 }
-            })
-            .catch(() => message.error("Ошибка загрузки проектов"));
-    }, []);
+                // Иначе, если есть проекты, устанавливаем первый
+                else if (data.length > 0) {
+                    setSelectedProject(data[0]);
+                }
+                
+                initialLoadCompleted.current = true;
+            } catch (error) {
+                message.error("Ошибка загрузки проектов");
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        
+        loadProjectsAndSetSelected();
+    }, [location.state]);
+
+    // Отдельный эффект только для изменений в location после начальной загрузки
+    useEffect(() => {
+        if (initialLoadCompleted.current && location.state?.selectedProject) {
+            setSelectedProject(location.state.selectedProject);
+        }
+    }, [location]);
 
     const handleAddTask = () => {
         form.validateFields().then((values) => {
@@ -75,10 +105,14 @@ function App() {
                     }}
 
                 />
-                <TaskBoard
-                    project={selectedProject}
-                    onAddTask={handleAddTask}
-                />
+                {isLoading ? (
+                    <div className="loading-container">Загрузка проектов...</div>
+                ) : (
+                    <TaskBoard
+                        project={selectedProject}
+                        onAddTask={handleAddTask}
+                    />
+                )}
             </div>
 
         </div>

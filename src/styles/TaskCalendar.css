@@ -1,0 +1,33 @@
+.task-calendar-container {
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    display:flex;
+    flex-grow: 1;
+}
+
+.rbc-calendar {
+    font-family: Arial, sans-serif;
+    width: 100%;
+}
+
+.rbc-toolbar-label {
+    font-size: 1.5em;
+    color: #000;
+}
+
+.rbc-header {
+    background-color: #f5f5f5;
+    color: #000;
+    font-weight: bold;
+}
+
+.rbc-day-bg {
+    background-color: #fff;
+}
+
+
+.rbc-today {
+    background-color: #e6f7ff !important;
+}

@@ -20,6 +20,12 @@ import { TaskColumn } from "./TaskColumn";
 import TaskItem from "./TaskItem.jsx";
 import Chat from "./Chat";
 import { useNavigate } from "react-router-dom";
+import TaskCalendar from "./TaskCalendar.jsx";
+import moment from 'moment';
+import TaskReviewPanel from "./TaskReviewPanel.jsx"
+import projectUsers from "./ProjectUsers.jsx";
+import TaskTimeline from "./Timeline";
+
 
 const { Option } = Select;
 
@@ -63,7 +69,7 @@ const TaskBoard = ({ project }) => {
                 getProjectUsers(projectData.id),
             ]);
             const enrichedTasks = tasksData.map(task => {
-                const assignee = usersData.find(user => user.first_name === task.assignee_name);
+                const assignee = usersData.find(user => user.id === task.assignee_id);
                 console.log("qweqwe" + task.assignee_name);
                 return {
                     ...task,
@@ -179,8 +185,7 @@ const TaskBoard = ({ project }) => {
                         column_id: newColumnId,
                         title: activeTask.title,
                     });
-                    // Добавляем assignee_name к обновлённой задаче
-                    const assignee = users.find(user => user.user_id === updatedTask.assignee_id);
+                    const assignee = users.find(user => user.id === updatedTask.assignee_id);
                     const enrichedTask = {
                         ...updatedTask,
                         assignee_name: assignee ? `${assignee.first_name} ${assignee.last_name}` : null,
@@ -209,6 +214,20 @@ const TaskBoard = ({ project }) => {
     const renderContent = () => {
         if (activeView === "Чат") {
             return <Chat projectId={projectData.id} />;
+        } else if (activeView === "Календарь") {
+            return <TaskCalendar tasks={filteredTasks} />;
+        } else if (activeView === "Список") {
+            return <TaskReviewPanel 
+                tasks={filteredTasks} 
+                projectId={projectData.id} 
+                currentUser={users[0]} 
+                onUpdate={fetchData}
+            />;
+        } else if (activeView === "Хронология") {
+            return <TaskTimeline 
+                tasks={filteredTasks}
+                onTaskUpdate={fetchData}
+            />;
         }
         return (
             <DndContext
@@ -327,17 +346,21 @@ const TaskBoard = ({ project }) => {
                 </Select>
                 <Select
                     value={newTask.assignee_id}
-                    onChange={(value) => setNewTask({ ...newTask, assignee_id: value })}
+                    onChange={(value) => {
+                        console.log('Выбранный assignee_id:', value);
+                        setNewTask({ ...newTask, assignee_id: value });
+                    }}
                     style={{ width: "100%", marginBottom: 10 }}
                     placeholder="Выберите исполнителя"
                     showSearch
                     optionFilterProp="children"
-                    filterOption={(input, option) =>
-                        option.children.toLowerCase().includes(input.toLowerCase())
-                    }
+                    filterOption={(input, option) => {
+                        const children = option.children || '';
+                        return children.includes(input);
+                    }}
                 >
                     {users.map(user => (
-                        <Option key={user.user_id} value={user.user_id}>
+                        <Option key={user.id} value={user.id}>
                             {user.first_name} {user.last_name}
                         </Option>
                     ))}

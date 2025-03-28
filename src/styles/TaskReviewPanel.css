@@ -1,0 +1,159 @@
+.task-review-container {
+    display: flex;
+    gap: 20px;
+}
+
+.task-list-container {
+    width: 300px;
+    border: 1px solid #f0f0f0;
+    border-radius: 8px;
+    padding: 15px;
+    background-color: #fff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    overflow-y: auto;
+    max-height: 600px;
+}
+
+.task-list-container h3 {
+    margin-bottom: 15px;
+    border-bottom: 1px solid #f0f0f0;
+    padding-bottom: 10px;
+}
+
+.task-list {
+    border: none;
+}
+
+.task-list-item {
+    cursor: pointer;
+    border-radius: 4px;
+    padding: 10px;
+    margin-bottom: 5px;
+    transition: all 0.3s;
+}
+
+.task-list-item:hover {
+    background-color: #f5f5f5;
+}
+
+.task-list-item.selected {
+    background-color: #e6f7ff;
+    border-left: 3px solid #1890ff;
+}
+
+.task-list-title {
+    font-weight: 500;
+    margin-bottom: 5px;
+}
+
+.task-list-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+}
+
+.task-assignee {
+    color: #666;
+    font-size: 13px;
+    margin-left: 5px;
+}
+
+.task-review-panel {
+    flex: 1;
+    padding: 20px;
+    border: 1px solid #f0f0f0;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    background-color: #fff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.task-meta {
+    margin-bottom: 20px;
+}
+
+.task-meta h3 {
+    margin-bottom: 12px;
+    font-weight: 600;
+}
+
+.task-status, .task-grade, .task-assignee {
+    margin: 8px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.task-description {
+    margin-top: 15px;
+    padding: 10px;
+    background-color: #f9f9f9;
+    border-radius: 4px;
+}
+
+.task-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 16px;
+}
+
+.report-button-container {
+    margin-top: 20px;
+    border-top: 1px solid #f0f0f0;
+    padding-top: 15px;
+}
+
+.no-task-selected {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 200px;
+    color: #999;
+    font-style: italic;
+}
+
+/* Стили для модальных окон */
+.grade-modal {
+    text-align: center;
+}
+
+.grade-select {
+    width: 100%;
+    margin-top: 16px;
+}
+
+/* Стили для таблицы отчета */
+.report-table {
+    margin-top: 15px;
+}
+
+.report-table .ant-tag {
+    min-width: 40px;
+    text-align: center;
+}
+
+.task-comments {
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid #f0f0f0;
+}
+
+.task-comment {
+    margin-bottom: 15px;
+    padding: 10px;
+    background-color: #f9f9f9;
+    border-radius: 4px;
+}
+
+.comment-author {
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.comment-date {
+    font-size: 12px;
+    color: #999;
+    margin-left: 8px;
+}
