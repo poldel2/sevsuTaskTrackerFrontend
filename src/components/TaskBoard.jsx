@@ -134,8 +134,24 @@ const TaskBoard = ({ project }) => {
     };
 
     const handleDragOver = (event) => {
-        const { over } = event;
-        setDraggingOver(over ? over.id : null);
+        const { over, active } = event;
+        if (!over) {
+            setDraggingOver(null);
+            return;
+        }
+
+        let targetColumnId;
+        if (columns.some(col => col.id === over.id)) {
+            targetColumnId = over.id;
+        } else {
+            const overTask = tasks.find(t => t.id === over.id);
+            targetColumnId = overTask ? overTask.column_id : null;
+        }
+
+        const draggedTask = tasks.find(t => t.id === active.id);
+        const currentColumnId = draggedTask ? draggedTask.column_id : null;
+
+        setDraggingOver(targetColumnId !== currentColumnId ? targetColumnId : null);
     };
 
     const handleDragEnd = async (event) => {
@@ -227,6 +243,7 @@ const TaskBoard = ({ project }) => {
             return <TaskTimeline 
                 tasks={filteredTasks}
                 onTaskUpdate={fetchData}
+                projectId={projectData.id}
             />;
         }
         return (
