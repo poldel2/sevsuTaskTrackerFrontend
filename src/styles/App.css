@@ -30,4 +30,21 @@
     padding: 40px;
 }
 
+.task-list-table-override .ant-table-wrapper {
+    min-width: unset !important; 
+    width: 100% !important;
+  }
 
+.task-list-table-override .ant-table-body > table,
+.task-list-table-override .ant-table-container > table, 
+.task-list-table-override .ant-table-content > table { 
+  min-width: unset !important;   
+  width: 100% !important;
+
+}
+
+.task-list-table-override .ant-table-body > table,
+.task-list-table-override .ant-table-container > table,
+.task-list-table-override .ant-table-content > table {
+  table-layout: auto !important; 
+}

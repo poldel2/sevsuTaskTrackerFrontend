@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "../../styles/TaskBoard.css";
 import TaskViewSidebar from "../layout/TaskViewSidebar";
-import { Modal, Input, Select, DatePicker, message } from "antd";
+import { Modal, Input, Select, DatePicker, message, Dropdown, Menu, Checkbox, Button, Space } from "antd";
 import {
     PlusOutlined,
     FilterOutlined,
@@ -22,11 +22,16 @@ import Chat from "../common/Chat";
 import { useNavigate } from "react-router-dom";
 import TaskCalendar from "./TaskCalendar.jsx";
 import moment from 'moment';
-import TaskReviewPanel from "./TaskReviewPanel.jsx"
 import TaskTimeline from "./Timeline";
-
+import TaskList from './TaskList';
 
 const { Option } = Select;
+
+const priorityLabels = {
+    high: 'Высокий',
+    medium: 'Средний',
+    low: 'Низкий',
+};
 
 const TaskBoard = ({ project }) => {
     const projectData = project?.id ? project : { id: "test", name: "Проект", logo: "" };
@@ -40,6 +45,48 @@ const TaskBoard = ({ project }) => {
     const [activeTaskId, setActiveTaskId] = useState(null);
     const [users, setUsers] = useState([]);
     const navigate = useNavigate();
+    const [appliedFilters, setAppliedFilters] = useState({
+        priority: [],
+        column_id: [],
+    });
+    const [paginationState, setPaginationState] = useState({ current: 1, pageSize: 15 });
+
+    const handleFilterChange = (filterType, values) => {
+        setAppliedFilters(prev => ({
+            ...prev,
+            [filterType]: values,
+        }));
+        setPaginationState(prev => ({ ...prev, current: 1 }));
+    };
+
+    const resetFilters = () => {
+        setAppliedFilters({ priority: [], column_id: [] });
+        setPaginationState(prev => ({ ...prev, current: 1 }));
+    };
+
+    const filterMenu = (
+        <Menu style={{ padding: 16 }}>
+            <div style={{ marginBottom: 16 }}>
+                <p style={{ fontWeight: 'bold' }}>Приоритет:</p>
+                <Checkbox.Group
+                    options={Object.entries(priorityLabels).map(([value, label]) => ({ label, value }))}
+                    value={appliedFilters.priority}
+                    onChange={(values) => handleFilterChange('priority', values)}
+                />
+            </div>
+            <div style={{ marginBottom: 16 }}>
+                <p style={{ fontWeight: 'bold' }}>Статус:</p>
+                <Checkbox.Group
+                    options={columns.map(col => ({ label: col.name, value: col.id }))}
+                    value={appliedFilters.column_id}
+                    onChange={(values) => handleFilterChange('column_id', values)}
+                />
+            </div>
+            <Button onClick={resetFilters} type="link">Сбросить все фильтры</Button>
+        </Menu>
+    );
+
+    const isFiltersApplied = appliedFilters.priority.length > 0 || appliedFilters.column_id.length > 0;
 
     useEffect(() => {
         if (projectData.id !== "test") {
@@ -119,9 +166,13 @@ const TaskBoard = ({ project }) => {
         }
     };
 
-    const filteredTasks = tasks.filter((task) =>
-        task.title.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    const filteredTasks = tasks.filter((task) => {
+        const searchMatch = task.title.toLowerCase().includes(searchQuery.toLowerCase());
+        const priorityMatch = appliedFilters.priority.length === 0 || appliedFilters.priority.includes(task.priority);
+        const statusMatch = appliedFilters.column_id.length === 0 || appliedFilters.column_id.includes(task.column_id);
+        
+        return searchMatch && priorityMatch && statusMatch;
+    });
 
     const handleDragStart = (event) => {
         const { active } = event;
@@ -228,9 +279,17 @@ const TaskBoard = ({ project }) => {
     const handleTaskUpdate = (updatedTask) => {
         if (updatedTask) {
             setTasks(prevTasks => 
-                prevTasks.map(task => 
-                    task.id === updatedTask.id ? { ...task, ...updatedTask } : task
-                )
+                prevTasks.map(task => {
+                    if (task.id === updatedTask.id) {
+                        const newTask = { ...task, ...updatedTask };
+                        if (updatedTask.assignee_id !== undefined) {
+                            const assignee = users.find(u => u.id === updatedTask.assignee_id);
+                            newTask.assignee_name = assignee ? `${assignee.first_name} ${assignee.last_name}` : null;
+                        }
+                        return newTask;
+                    }
+                    return task;
+                })
             );
         } else {
             fetchData();
@@ -243,11 +302,12 @@ const TaskBoard = ({ project }) => {
         } else if (activeView === "Календарь") {
             return <TaskCalendar tasks={filteredTasks} />;
         } else if (activeView === "Список") {
-            return <TaskReviewPanel 
-                tasks={filteredTasks} 
-                projectId={projectData.id} 
-                currentUser={users[0]} 
+            return <TaskList 
+                tasks={filteredTasks}
                 onUpdate={fetchData}
+                projectId={projectData.id}
+                columns={columns}
+                paginationState={paginationState}
             />;
         } else if (activeView === "Хронология") {
             return <TaskTimeline 
@@ -299,9 +359,15 @@ const TaskBoard = ({ project }) => {
                         <button className="task-action" onClick={() => setIsModalVisible(true)}>
                             <PlusOutlined /> Добавить задачу
                         </button>
-                        <button className="task-action">
-                            <FilterOutlined /> Фильтр
-                        </button>
+                        <Dropdown overlay={filterMenu} trigger={['click']}>
+                            <button 
+                                className="task-action" 
+                                style={isFiltersApplied ? { color: '#1677ff', borderColor: '#1677ff' } : {}}
+                            >
+                                <FilterOutlined /> 
+                                Фильтр {isFiltersApplied ? `(${appliedFilters.priority.length + appliedFilters.column_id.length})` : ''}
+                            </button>
+                        </Dropdown>
                         <button className="task-action">
                             <MoreOutlined /> Еще
                         </button>

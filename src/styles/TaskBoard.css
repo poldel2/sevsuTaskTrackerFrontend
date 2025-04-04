@@ -225,6 +225,7 @@
     display: flex;
     height: calc(100% - 100px);
     gap: 16px;
+    overflow-x: scroll;
 }
 
 /* 70% - блок задач */

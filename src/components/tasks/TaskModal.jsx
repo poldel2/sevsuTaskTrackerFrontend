@@ -97,7 +97,6 @@ const TaskModal = ({ task, visible, onCancel, onUpdate }) => {
             onCancel={onCancel}
             width={800}
             destroyOnClose
-            maskClosable={false}
             className="task-edit-modal"
             style={{ zIndex: 1050 }}
             mask={true}
