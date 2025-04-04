@@ -3,7 +3,7 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { EditOutlined, RightOutlined } from "@ant-design/icons";
 import TaskModal from "./TaskModal";
-import '../styles/TaskItem.css';
+import '../../styles/TaskItem.css';
 // Глобальное состояние для отслеживания модального окна
 let isModalOpenState = false;
 let modalOpenCallbackFunction = null;

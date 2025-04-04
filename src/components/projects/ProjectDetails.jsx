@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { getProject, updateProject } from '../services/api';
+import { getProject, updateProject } from '../../services/api';
 import { Input, Button, message } from 'antd';
-import '../styles/ProjectSettings.css'; // Используем общие стили
+import '../../styles/ProjectSettings.css'; // Используем общие стили
 
 const ProjectDetails = ({ projectId }) => {
     const [project, setProject] = useState(null);

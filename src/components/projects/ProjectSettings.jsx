@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import '../styles/ProjectSettings.css';
-import ColumnSettings from './ColumnSettings';
+import '../../styles/ProjectSettings.css';
+import ColumnSettings from '../common/ColumnSettings';
 import ProjectDetails from './ProjectDetails';
 import ProjectUsers from './ProjectUsers';
 

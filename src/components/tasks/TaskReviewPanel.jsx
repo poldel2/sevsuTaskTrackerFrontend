@@ -7,7 +7,7 @@ import {
   getProjectParticipantsReport, 
   setParticipantManualGrade,
   getCurrentUser
-} from '../services/api';
+} from '../../services/api';
 import { Button, Modal, Input, message, Tag, Table, Select, Tabs, Tooltip, List } from 'antd';
 import { 
   CheckCircleOutlined, 
@@ -17,7 +17,7 @@ import {
   UserOutlined,
   TrophyOutlined 
 } from '@ant-design/icons';
-import "../styles/TaskReviewPanel.css";
+import "../../styles/TaskReviewPanel.css";
 
 const { TextArea } = Input;
 const { TabPane } = Tabs;

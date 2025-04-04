@@ -3,8 +3,8 @@ import { DatePicker, Spin, message, Radio, ConfigProvider } from 'antd';
 import moment from 'moment';
 import 'moment/locale/ru';
 import locale from 'antd/es/locale/ru_RU';
-import { updateTask } from '../services/api';
-import '../styles/Timeline.css';
+import { updateTask } from '../../services/api';
+import '../../styles/Timeline.css';
 import TaskModal from './TaskModal';
 
 // Принудительно устанавливаем русскую локаль для moment

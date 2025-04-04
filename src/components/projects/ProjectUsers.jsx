@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { getProjectUsers, searchUsers, addUserToProject } from '../services/api';
+import { getProjectUsers, searchUsers, addUserToProject } from '../../services/api';
 import { Input, Button, Select, message, Spin } from 'antd';
-import '../styles/ProjectSettings.css';
+import '../../styles/ProjectSettings.css';
 
 const { Option } = Select;
 

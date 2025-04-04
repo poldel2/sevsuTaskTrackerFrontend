@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { DndContext, closestCorners } from '@dnd-kit/core';
 import { SortableContext, arrayMove, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import { getColumns, createColumn, updateColumn } from '../services/api';
+import { getColumns, createColumn, updateColumn } from '../../services/api';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Modal, Input } from 'antd';

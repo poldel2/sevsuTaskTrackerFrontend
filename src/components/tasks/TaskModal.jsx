@@ -2,8 +2,8 @@ import React, { useState, useEffect } from "react";
 import { Modal, Form, Input, Select, Button, Spin, message } from "antd";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import "../styles/DatePicker.css";
-import { getProjectUsers, getColumns, updateTask } from "../services/api";
+import "../../styles/DatePicker.css";
+import { getProjectUsers, getColumns, updateTask } from "../../services/api";
 import moment from "moment";
 import "moment/locale/ru";
 
@@ -101,7 +101,7 @@ const TaskModal = ({ task, visible, onCancel, onUpdate }) => {
             className="task-edit-modal"
             style={{ zIndex: 1050 }}
             mask={true}
-            maskStyle={{ backgroundColor: 'rgba(0, 0, 0, 0.45)' }}
+            styles={{ mask: { backgroundColor: 'rgba(0, 0, 0, 0.45)' } }}
         >
             <Spin spinning={loading}>
                 <Form

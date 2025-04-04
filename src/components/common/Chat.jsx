@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
-import "../styles/Chat.css";
-import { getMessages } from "../services/api.js";
-import { useAuth } from "../context/AuthContext.jsx";
+import "../../styles/Chat.css";
+import { getMessages } from "../../services/api.js";
+import { useAuth } from "../../context/AuthContext.jsx";
 
 const Chat = ({ projectId }) => {
     const [messages, setMessages] = useState([]);

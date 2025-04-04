@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import AddUserToProjectForm from './AddUserToProjectForm';
+import AddUserToProjectForm from '../projects/AddUserToProjectForm';
 
 const AddUserButton = ({ projectId }) => {
     const [isFormOpen, setIsFormOpen] = useState(false);

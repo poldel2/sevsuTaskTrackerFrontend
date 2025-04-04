@@ -2,9 +2,9 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button, Input, message, Card, Spin, Row, Col, Typography, Badge, Tag, Space, Empty } from "antd";
 import { PlusOutlined, SearchOutlined, CalendarOutlined, TeamOutlined } from "@ant-design/icons";
-import TopMenu from "./TopMenu";
-import { getProjects } from "../services/api";
-import "../styles/ProjectsPage.css";
+import TopMenu from "../layout/TopMenu";
+import { getProjects } from "../../services/api";
+import "../../styles/ProjectsPage.css";
 
 const { Title, Text } = Typography;
 

@@ -1,8 +1,9 @@
+import "../../styles/topMenu.css";
 import React from "react";
-import "../styles/topMenu.css";
 import { UserOutlined, DownOutlined } from "@ant-design/icons";
 import { Dropdown, Menu } from "antd";
-import {useAuth} from "../context/AuthContext.jsx";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from '../../context/AuthContext.jsx';
 
 const menuItems = [
     { key: "work", label: "Работа" },

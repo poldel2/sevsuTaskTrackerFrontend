@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import "../styles/TaskBoard.css";
-import TaskViewSidebar from "./TaskViewSidebar";
+import "../../styles/TaskBoard.css";
+import TaskViewSidebar from "../layout/TaskViewSidebar";
 import { Modal, Input, Select, DatePicker, message } from "antd";
 import {
     PlusOutlined,
@@ -9,7 +9,7 @@ import {
     SettingOutlined,
     SearchOutlined,
 } from "@ant-design/icons";
-import { getTasks, addTask, updateTask, getColumns, updateColumn, getProjectUsers } from "../services/api";
+import { getTasks, addTask, updateTask, getColumns, updateColumn, getProjectUsers } from "../../services/api";
 import {
     DndContext,
     closestCorners,
@@ -18,12 +18,11 @@ import {
 import { SortableContext, verticalListSortingStrategy, horizontalListSortingStrategy } from "@dnd-kit/sortable";
 import { TaskColumn } from "./TaskColumn";
 import TaskItem from "./TaskItem.jsx";
-import Chat from "./Chat";
+import Chat from "../common/Chat";
 import { useNavigate } from "react-router-dom";
 import TaskCalendar from "./TaskCalendar.jsx";
 import moment from 'moment';
 import TaskReviewPanel from "./TaskReviewPanel.jsx"
-import projectUsers from "./ProjectUsers.jsx";
 import TaskTimeline from "./Timeline";
 
 
@@ -70,7 +69,6 @@ const TaskBoard = ({ project }) => {
             ]);
             const enrichedTasks = tasksData.map(task => {
                 const assignee = usersData.find(user => user.id === task.assignee_id);
-                console.log("qweqwe" + task.assignee_name);
                 return {
                     ...task,
                     assignee_name: assignee ? `${assignee.first_name} ${assignee.last_name}` : null,
@@ -376,7 +374,6 @@ const TaskBoard = ({ project }) => {
                 <Select
                     value={newTask.assignee_id}
                     onChange={(value) => {
-                        console.log('Выбранный assignee_id:', value);
                         setNewTask({ ...newTask, assignee_id: value });
                     }}
                     style={{ width: "100%", marginBottom: 10 }}

@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Modal, message, Form } from "antd";
-import TopMenu from "./components/TopMenu";
-import SideMenu from "./components/SideMenu";
-import TaskBoard from "./components/TaskBoard";
-import TaskForm from "./components/TaskForm";
+import TopMenu from "./components/layout/TopMenu";
+import SideMenu from "./components/layout/SideMenu";
+import TaskBoard from "./components/tasks/TaskBoard";
+import TaskForm from "./components/tasks/TaskForm";
 import "./styles/global.css";
 import "./styles/App.css";
 import {getProjects, addTask, addProject} from "./services/api";

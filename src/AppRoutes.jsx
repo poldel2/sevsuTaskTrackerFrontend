@@ -1,13 +1,13 @@
-import React from 'react';
+import React, { useEffect, useState } from "react";
 import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import App from './App';
-import ProjectsPage from './components/ProjectsPage';
+import ProjectsPage from './components/projects/ProjectsPage';
 import LoginPage from './components/auth/LoginPage.jsx';
 import RegisterPage from './components/auth/RegisterPage.jsx';
 import PrivateRoute from './components/auth/PrivateRoute.jsx';
-import ColumnSettings from './components/ColumnSettings';
 import { AuthProvider, useAuth } from './context/AuthContext';
-import ProjectSettings from "./components/ProjectSettings.jsx";
+import ProjectSettings from "./components/projects/ProjectSettings.jsx";
+import { logout } from "./services/api";
 
 function AppRoutes() {
     return (

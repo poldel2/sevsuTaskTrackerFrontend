@@ -1,5 +1,6 @@
 import React from "react";
-import "../styles/TaskViewSidebar.css";
+import "../../styles/TaskViewSidebar.css";
+import { CalendarOutlined, BarsOutlined, ProjectOutlined, OrderedListOutlined, TableOutlined } from '@ant-design/icons';
 
 const views = [
     "Доска",

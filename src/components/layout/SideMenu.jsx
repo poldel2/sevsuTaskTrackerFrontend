@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Button, Collapse, Modal, Form, Input, message } from "antd";
-import { PlusOutlined, RightOutlined, LeftOutlined } from "@ant-design/icons";
-import "../styles/sideMenu.css";
-import { addProject, getProjects } from "../services/api.js";
+import { PlusOutlined, RightOutlined, LeftOutlined, MenuOutlined, ProjectOutlined, PlusCircleOutlined, HomeOutlined, CaretRightOutlined } from "@ant-design/icons";
+import "../../styles/sideMenu.css";
+import { addProject, getProjects } from "../../services/api.js";
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 
 const { Panel } = Collapse;
 

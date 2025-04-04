@@ -2,7 +2,7 @@ import React from 'react';
 import {Calendar, momentLocalizer} from 'react-big-calendar';
 import moment from 'moment';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
-import '../styles/TaskCalendar.css';
+import '../../styles/TaskCalendar.css';
 
 const localizer = momentLocalizer(moment);
 
@@ -21,11 +21,8 @@ const TaskCalendar = ({ tasks }) => {
                 allDay: true,
                 resource: task,
             };
-            console.log('Созданное событие:', event); // Лог каждого события
             return event;
         });
-
-    console.log('Итоговые события:', events); // Лог всех событий
 
     const eventStyleGetter = (event) => {
         const style = {
