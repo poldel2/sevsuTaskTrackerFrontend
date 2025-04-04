@@ -1,10 +1,11 @@
 .timeline-container {
-    background: #fff;
-    border-radius: 8px;
+    background: transparent;
     padding: 20px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    width: 80%;
-    margin: 0 auto;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    display: flex;
+    flex-direction: column;
 }
 
 .timeline-header {
@@ -30,6 +31,7 @@
     border: 1px solid #f0f0f0;
     border-radius: 4px;
     overflow: hidden;
+    flex: 1;
 }
 
 .gantt-header {
@@ -51,13 +53,19 @@
     display: flex;
     overflow-x: auto;
     background: #fafafa;
-    flex-shrink: 0;
+    flex-grow: 1;
+    -ms-overflow-style: none;  /* для IE и Edge */
+    scrollbar-width: none;     /* для Firefox */
+}
+
+.time-units-header::-webkit-scrollbar {
+    display: none;  /* для Chrome, Safari и Opera */
 }
 
 .time-unit-cell {
     width: 210px;
-    padding: 12px;
     text-align: center;
+    padding-top: 12px;
     border-right: 1px solid #f0f0f0;
     font-weight: 500;
     flex-shrink: 0;
@@ -65,6 +73,7 @@
 
 .gantt-body {
     overflow-y: auto;
+    overflow-x: auto;
     max-height: 600px;
 }
 
@@ -72,6 +81,7 @@
     display: flex;
     min-height: 40px;
     border-bottom: 1px solid #f0f0f0;
+    width:max-content;
 }
 
 .task-info {
@@ -82,6 +92,10 @@
     flex-direction: column;
     justify-content: center;
     flex-shrink: 0;
+    background: #fff;
+    position: sticky;
+    left: 0;
+    z-index: 10;
 }
 
 .task-title {
@@ -117,7 +131,8 @@
 .time-units-grid {
     display: flex;
     position: relative;
-    flex-shrink: 0;
+    flex-grow: 1;
+    width: 100%;
 }
 
 .time-unit-cell-grid {
@@ -136,6 +151,7 @@
     align-items: center;
     cursor: move;
     min-width: 30px;
+    z-index: 5;
 }
 
 .task-duration-bar {
@@ -148,48 +164,90 @@
 
 .task-resize-handle {
     position: absolute;
-    right: -4px;
+    right: -5px;
     top: 0;
-    width: 8px;
+    width: 10px;
     height: 100%;
     cursor: ew-resize;
     background: transparent;
+    z-index: 10;
 }
 
-.task-resize-handle:hover {
-    background: rgba(0, 0, 0, 0.1);
+.task-resize-handle-left {
+    position: absolute;
+    left: -5px;
+    top: 0;
+    width: 10px;
+    height: 100%;
+    cursor: ew-resize;
+    background: transparent;
+    z-index: 10;
+}
+
+/* При наведении показываем ручки перетаскивания */
+.task-bar-container:hover .task-resize-handle,
+.task-bar-container:hover .task-resize-handle-left {
+    background: rgba(0, 0, 0, 0.15);
+}
+
+.task-resize-handle:hover,
+.task-resize-handle-left:hover {
+    background: rgba(0, 0, 0, 0.25) !important;
+}
+
+/* Индикатор текущего дня */
+.today-indicator {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background-color: #1890ff;
+    z-index: 15;
+    opacity: 0.8;
+    box-shadow: 0 0 5px rgba(24, 144, 255, 0.5);
+}
+
+.today-indicator::after {
+    content: '';
+    position: absolute;
+    top: -4px;
+    left: -3px;
+    width: 8px;
+    height: 8px;
+    background-color: #1890ff;
+    border-radius: 50%;
+    box-shadow: 0 0 5px rgba(24, 144, 255, 0.7);
 }
 
 /* Стили для скроллбара */
-.time-units-header::-webkit-scrollbar,
-.time-units-grid::-webkit-scrollbar,
 .gantt-body::-webkit-scrollbar {
     height: 8px;
     width: 8px;
 }
 
-.time-units-header::-webkit-scrollbar-track,
-.time-units-grid::-webkit-scrollbar-track,
 .gantt-body::-webkit-scrollbar-track {
     background: #f1f1f1;
     border-radius: 4px;
 }
 
-.time-units-header::-webkit-scrollbar-thumb,
-.time-units-grid::-webkit-scrollbar-thumb,
 .gantt-body::-webkit-scrollbar-thumb {
     background: #888;
     border-radius: 4px;
 }
 
-.time-units-header::-webkit-scrollbar-thumb:hover,
-.time-units-grid::-webkit-scrollbar-thumb:hover,
 .gantt-body::-webkit-scrollbar-thumb:hover {
     background: #555;
 }
 
+/* Фиксированная шапка */
+.task-info-header {
+    position: sticky;
+    left: 0;
+    z-index: 20;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
+}
+
 /* Синхронизация скролла */
-.time-units-header,
 .time-units-grid {
     scrollbar-width: thin;
     scrollbar-color: #888 #f1f1f1;
@@ -215,3 +273,11 @@
         font-size: 12px;
     }
 } 
+
+.task-resize-handle-start {
+    left: 0;
+}
+
+.task-resize-handle-end {
+    right: 0;
+}

@@ -71,7 +71,6 @@
     background-color: #e0e0e0;
     border-radius: 12px;
     overflow: hidden;
-    flex-wrap: nowrap;
 }
 
 /* Кнопки */
@@ -244,7 +243,6 @@
 
 /* 30% - боковой сайдбар */
 .task-view-sidebar {
-    width: 17%;
     max-height: 75%;
     background: #e0e0e0;
     padding: 15px;

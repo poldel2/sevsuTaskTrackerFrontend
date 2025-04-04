@@ -227,6 +227,18 @@ const TaskBoard = ({ project }) => {
         return '3%';
     };
 
+    const handleTaskUpdate = (updatedTask) => {
+        if (updatedTask) {
+            setTasks(prevTasks => 
+                prevTasks.map(task => 
+                    task.id === updatedTask.id ? { ...task, ...updatedTask } : task
+                )
+            );
+        } else {
+            fetchData();
+        }
+    };
+
     const renderContent = () => {
         if (activeView === "Чат") {
             return <Chat projectId={projectData.id} />;
@@ -242,7 +254,7 @@ const TaskBoard = ({ project }) => {
         } else if (activeView === "Хронология") {
             return <TaskTimeline 
                 tasks={filteredTasks}
-                onTaskUpdate={fetchData}
+                onTaskUpdate={handleTaskUpdate}
                 projectId={projectData.id}
             />;
         }

@@ -7,12 +7,13 @@ const RegisterPage = () => {
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
     const [error, setError] = useState('');
-    const { signup } = useAuth();
+    const { signup, login } = useAuth();
 
     const handleRegister = async (e) => {
         e.preventDefault();
         try {
             await signup({ email, password, first_name: firstName, last_name: lastName });
+            await login(email, password);
         } catch (err) {
             setError(err.detail || 'Registration failed');
         }

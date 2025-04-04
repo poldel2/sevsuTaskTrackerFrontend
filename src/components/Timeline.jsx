@@ -1,13 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { DatePicker, Spin, message, Radio } from 'antd';
+import { DatePicker, Spin, message, Radio, ConfigProvider } from 'antd';
 import moment from 'moment';
 import 'moment/locale/ru';
+import locale from 'antd/es/locale/ru_RU';
 import { updateTask } from '../services/api';
 import '../styles/Timeline.css';
 import TaskModal from './TaskModal';
 
-// Устанавливаем русскую локаль для moment
-moment.locale("ru");
+// Принудительно устанавливаем русскую локаль для moment
+moment.locale('ru');
 
 const { RangePicker } = DatePicker;
 const { Button, Group } = Radio;
@@ -15,8 +16,8 @@ const { Button, Group } = Radio;
 const TaskTimeline = ({ tasks, onTaskUpdate, projectId }) => {
     const [loading, setLoading] = useState(false);
     const [timelineData, setTimelineData] = useState([]);
-    const [startDate, setStartDate] = useState(moment().startOf('month'));
-    const [endDate, setEndDate] = useState(moment().endOf('month').add(2, 'months'));
+    const [startDate, setStartDate] = useState(moment().subtract(6, 'months').startOf('month'));
+    const [endDate, setEndDate] = useState(moment().add(6, 'months').endOf('month'));
     const [timeUnits, setTimeUnits] = useState([]);
     const [viewScale, setViewScale] = useState('month');
     const [resizingTask, setResizingTask] = useState(null);
@@ -26,16 +27,25 @@ const TaskTimeline = ({ tasks, onTaskUpdate, projectId }) => {
     const [selectedTask, setSelectedTask] = useState(null);
     const [isModalVisible, setIsModalVisible] = useState(false);
     const containerRef = useRef(null);
+    const ganttBodyRef = useRef(null);
+    const timeUnitsHeaderRef = useRef(null);
+    const [resizeType, setResizeType] = useState(null); 
+
+    useEffect(() => {
+        moment.locale('ru');
+    }, []);
 
     useEffect(() => {
         if (tasks) {
-            const sortedTasks = [...tasks].sort((a, b) => 
-                moment(a.created_at).valueOf() - moment(b.created_at).valueOf()
-            );
+            const sortedTasks = [...tasks].sort((a, b) => {
+                const aDate = a.start_date || a.created_at;
+                const bDate = b.start_date || b.created_at;
+                return moment(aDate).valueOf() - moment(bDate).valueOf();
+            });
 
             const timelineItems = sortedTasks.map(task => ({
                 ...task,
-                startDate: moment(task.created_at).clone(),
+                startDate: moment(task.start_date || task.created_at).clone(),
                 endDate: moment(task.due_date).clone()
             }));
 
@@ -57,36 +67,108 @@ const TaskTimeline = ({ tasks, onTaskUpdate, projectId }) => {
         setTimeUnits(unitsArray);
     }, [startDate, endDate, viewScale]);
 
-    const handleDateChange = async (taskId, newDate) => {
-        if (!newDate || !projectId) return;
+    useEffect(() => {
+        const syncScroll = (e) => {
+            if (timeUnitsHeaderRef.current) {
+                timeUnitsHeaderRef.current.scrollLeft = e.target.scrollLeft;
+            }
+        };
+
+        const ganttBody = ganttBodyRef.current;
+        if (ganttBody) {
+            ganttBody.addEventListener('scroll', syncScroll);
+        }
+
+        return () => {
+            if (ganttBody) {
+                ganttBody.removeEventListener('scroll', syncScroll);
+            }
+        };
+    }, []);
+
+    useEffect(() => {
+        if (timeUnits.length > 0 && ganttBodyRef.current) {
+            const today = moment();
+            const timelineStart = moment(startDate);
+            const timelineEnd = moment(endDate);
+            const totalWidth = timeUnits.length * 210;
+            const daysInTimeline = timelineEnd.diff(timelineStart, 'days');
+            const pixelsPerDay = totalWidth / daysInTimeline;
+            
+            const daysSinceStart = today.diff(timelineStart, 'days');
+            const scrollPosition = daysSinceStart * pixelsPerDay - (ganttBodyRef.current.clientWidth / 2);
+            
+            ganttBodyRef.current.scrollLeft = Math.max(0, scrollPosition);
+            if (timeUnitsHeaderRef.current) {
+                timeUnitsHeaderRef.current.scrollLeft = Math.max(0, scrollPosition);
+            }
+        }
+    }, [timeUnits, startDate, endDate]);
+
+    const handleDateChange = async (taskId, updateData) => {
+        if (!updateData || !projectId) return;
         
         try {
             setLoading(true);
-            const task = tempTimelineData.find(t => t.id === taskId);
+            const task = timelineData.find(t => t.id === taskId);
             if (!task) return;
 
-            await updateTask(taskId, projectId, {
-                due_date: newDate.format('YYYY-MM-DD')
-            });
+            // Обновляем задачу на сервере
+            const serverResponse = await updateTask(taskId, projectId, updateData);
             
-            if (onTaskUpdate) {
-                onTaskUpdate();
+            // Локально обновляем данные без вызова onTaskUpdate
+            const updatedTask = {
+                ...task,
+                ...updateData,
+                startDate: updateData.start_date 
+                    ? moment(updateData.start_date).clone() 
+                    : task.startDate,
+                endDate: updateData.due_date 
+                    ? moment(updateData.due_date).clone() 
+                    : task.endDate,
+                start_date: updateData.start_date || task.start_date,
+                due_date: updateData.due_date || task.due_date
+            };
+            
+            setTimelineData(prevData => 
+                prevData.map(t => t.id === taskId ? updatedTask : t)
+            );
+            
+            setTempTimelineData(prevData => 
+                prevData.map(t => t.id === taskId ? updatedTask : t)
+            );
+            
+            // Передаем обновленные данные задачи в родительский компонент
+            if (onTaskUpdate && serverResponse) {
+                onTaskUpdate(serverResponse);
             }
             
-            message.success('Срок выполнения задачи обновлен');
+            const messageText = updateData.start_date 
+                ? 'Дата начала задачи обновлена' 
+                : 'Срок выполнения задачи обновлен';
+            message.success(messageText);
         } catch (error) {
             console.error('Error updating task:', error);
-            message.error('Не удалось обновить срок выполнения');
+            const errorText = updateData.start_date 
+                ? 'Не удалось обновить дату начала' 
+                : 'Не удалось обновить срок выполнения';
+            message.error(errorText);
         } finally {
             setLoading(false);
         }
     };
 
-    const handleResizeStart = (e, task) => {
+    const handleResizeStart = (e, task, type) => {
         e.stopPropagation();
         setResizingTask(task);
         setResizeStartX(e.clientX);
-        setInitialDate(moment(task.due_date).clone());
+        setResizeType(type);
+        
+        if (type === 'start') {
+            setInitialDate(moment(task.start_date || task.created_at).clone());
+        } else {
+            setInitialDate(moment(task.due_date).clone());
+        }
     };
 
     const handleResizeMove = (e) => {
@@ -100,79 +182,135 @@ const TaskTimeline = ({ tasks, onTaskUpdate, projectId }) => {
 
         const newDate = moment(initialDate).clone().add(daysDelta, 'days');
         
-        if (newDate.isAfter(moment(resizingTask.created_at))) {
-            setTempTimelineData(prevData => {
-                const newData = prevData.map(task => 
-                    task.id === resizingTask.id 
-                        ? { 
-                            ...task, 
-                            endDate: newDate.clone(),
-                            due_date: newDate.format('YYYY-MM-DD')
+        try {
+            setTempTimelineData(prevData => 
+                prevData.map(task => {
+                    if (task.id === resizingTask.id) {
+                        if (resizeType === 'start') {
+                            // Проверяем, что новая дата начала не позже даты завершения
+                            if (newDate.isBefore(moment(task.due_date))) {
+                                return {
+                                    ...task,
+                                    startDate: newDate.clone(),
+                                    start_date: newDate.format('YYYY-MM-DD')
+                                };
+                            }
+                        } else {
+                            // Проверяем, что новая дата завершения не раньше даты начала
+                            const taskStartDate = moment(task.start_date || task.created_at);
+                            if (newDate.isAfter(taskStartDate)) {
+                                return {
+                                    ...task,
+                                    endDate: newDate.clone(),
+                                    due_date: newDate.format('YYYY-MM-DD')
+                                };
+                            }
                         }
-                        : task
-                );
-                return newData;
-            });
+                    }
+                    return task;
+                })
+            );
+        } catch (error) {
+            console.error('Error updating tempTimelineData:', error);
         }
     };
 
-    const handleResizeEnd = async () => {
-        if (resizingTask) {
-            const updatedTask = tempTimelineData.find(t => t.id === resizingTask.id);
-            
-            if (updatedTask) {
-                const containerRect = containerRef.current.getBoundingClientRect();
-                const deltaX = window.event.clientX - resizeStartX;
-                const containerWidth = containerRect.width;
-                const daysPerPixel = moment(endDate).diff(startDate, 'days') / containerWidth;
-                const daysDelta = Math.round(deltaX * daysPerPixel);
-                const newDate = moment(initialDate).clone().add(daysDelta, 'days');
+    const handleResizeEnd = async (e) => {
+        try {
+            if (resizingTask) {
+                const updatedTask = tempTimelineData.find(t => t.id === resizingTask.id);
                 
-                if (newDate.isAfter(moment(resizingTask.created_at))) {
-                    await handleDateChange(resizingTask.id, newDate);
-                } else {
-                    setTempTimelineData(timelineData);
+                if (updatedTask) {
+                    // Получаем финальную позицию перед отпусканием
+                    const containerRect = containerRef.current.getBoundingClientRect();
+                    const deltaX = e.clientX - resizeStartX;
+                    const containerWidth = containerRect.width;
+                    const daysPerPixel = moment(endDate).diff(startDate, 'days') / containerWidth;
+                    const daysDelta = Math.round(deltaX * daysPerPixel);
+                    
+                    if (resizeType === 'start') {
+                        const newDate = moment(initialDate).clone().add(daysDelta, 'days');
+                        if (newDate.isBefore(moment(resizingTask.due_date))) {
+                            await handleDateChange(resizingTask.id, {
+                                start_date: newDate.format('YYYY-MM-DD')
+                            });
+                        }
+                    } else {
+                        const newDate = moment(initialDate).clone().add(daysDelta, 'days');
+                        const taskStartDate = moment(resizingTask.start_date || resizingTask.created_at);
+                        if (newDate.isAfter(taskStartDate)) {
+                            await handleDateChange(resizingTask.id, {
+                                due_date: newDate.format('YYYY-MM-DD')
+                            });
+                        }
+                    }
                 }
             }
+        } catch (error) {
+            console.error('Error in handleResizeEnd:', error);
+        } finally {
+            setResizingTask(null);
+            setResizeStartX(0);
+            setInitialDate(null);
+            setResizeType(null);
         }
-        setResizingTask(null);
-        setResizeStartX(0);
-        setInitialDate(null);
     };
+    
+    // Отдельные функции для привязки обработчиков событий
+    const handleMouseMove = (e) => handleResizeMove(e);
+    const handleMouseUp = (e) => handleResizeEnd(e);
 
     useEffect(() => {
         if (resizingTask) {
-            window.addEventListener('mousemove', handleResizeMove);
-            window.addEventListener('mouseup', handleResizeEnd);
+            window.addEventListener('mousemove', handleMouseMove);
+            window.addEventListener('mouseup', handleMouseUp);
+            
+            return () => {
+                window.removeEventListener('mousemove', handleMouseMove);
+                window.removeEventListener('mouseup', handleMouseUp);
+            };
         }
-
-        return () => {
-            window.removeEventListener('mousemove', handleResizeMove);
-            window.removeEventListener('mouseup', handleResizeEnd);
-        };
-    }, [resizingTask]);
+    }, [resizingTask, resizeType]);
 
     const getTaskPosition = (task) => {
-        const taskStart = moment(task.created_at).startOf('day');
+        const taskStart = moment(task.start_date || task.created_at).startOf('day');
         const taskEnd = moment(task.due_date).endOf('day');
         const timelineStart = moment(startDate).startOf('day');
         const timelineEnd = moment(endDate).endOf('day');
-        const totalWidth = timeUnits.length * 210; // Общая ширина всех ячеек (210px на ячейку)
+        const totalWidth = timeUnits.length * 210;
 
-        // Вычисляем смещение от начала временной шкалы в днях
         const daysFromStart = moment(taskStart).diff(timelineStart, 'days');
-        const taskDuration = moment(taskEnd).diff(taskStart, 'days') + 1; // +1 чтобы включить последний день
+        const taskDuration = moment(taskEnd).diff(taskStart, 'days') + 1;
         
-        // Переводим дни в пиксели (210px - ширина одной ячейки месяца)
         const daysInTimeline = moment(timelineEnd).diff(timelineStart, 'days');
         const pixelsPerDay = totalWidth / daysInTimeline;
         
         const left = Math.max(daysFromStart * pixelsPerDay, 0);
-        const width = Math.max(taskDuration * pixelsPerDay, 30); // Минимальная ширина 30px
+        const width = Math.max(taskDuration * pixelsPerDay, 30);
 
         return {
             left: `${left}px`,
             width: `${width}px`
+        };
+    };
+
+    const getTodayPosition = () => {
+        const today = moment();
+        const timelineStart = moment(startDate).startOf('day');
+        const timelineEnd = moment(endDate).endOf('day');
+        const totalWidth = timeUnits.length * 210;
+        
+        if (today.isBefore(timelineStart) || today.isAfter(timelineEnd)) {
+            return { display: 'none' };
+        }
+        
+        const daysFromStart = today.diff(timelineStart, 'days');
+        const daysInTimeline = timelineEnd.diff(timelineStart, 'days');
+        const pixelsPerDay = totalWidth / daysInTimeline;
+        
+        return {
+            left: `${daysFromStart * pixelsPerDay}px`,
+            display: 'block'
         };
     };
 
@@ -183,7 +321,12 @@ const TaskTimeline = ({ tasks, onTaskUpdate, projectId }) => {
 
     const formatTimeUnit = (date) => {
         if (viewScale === 'month') {
-            return date.format('MMMM YYYY');
+            // Ручное форматирование месяцев на русском
+            const monthsRu = [
+                'Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
+                'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'
+            ];
+            return `${monthsRu[date.month()]} ${date.year()}`;
         }
         return `${date.format('DD.MM')} - ${date.endOf('week').format('DD.MM')}`;
     };
@@ -201,85 +344,92 @@ const TaskTimeline = ({ tasks, onTaskUpdate, projectId }) => {
     };
 
     return (
-        <div className="timeline-container">
-            <div className="timeline-header">
-                <h2>Хронология задач</h2>
-                <div className="timeline-controls">
-                    <Group value={viewScale} onChange={e => setViewScale(e.target.value)}>
-                        <Button value="month">Месяцы</Button>
-                        <Button value="week">Недели</Button>
-                    </Group>
-                    <RangePicker
-                        value={[startDate, endDate]}
-                        onChange={([start, end]) => {
-                            if (start && end) {
-                                setStartDate(start);
-                                setEndDate(end);
-                            }
-                        }}
-                        format="DD.MM.YYYY"
-                    />
+        <ConfigProvider locale={locale}>
+            <div className="timeline-container">
+                <div className="timeline-header">
+                    <h2>Хронология задач</h2>
+                    <div className="timeline-controls">
+                        <Group value={viewScale} onChange={e => setViewScale(e.target.value)}>
+                            <Button value="month">Месяцы</Button>
+                            <Button value="week">Недели</Button>
+                        </Group>
+                        <RangePicker
+                            value={[startDate, endDate]}
+                            onChange={([start, end]) => {
+                                if (start && end) {
+                                    setStartDate(start);
+                                    setEndDate(end);
+                                }
+                            }}
+                            format="DD.MM.YYYY"
+                        />
+                    </div>
                 </div>
-            </div>
-            <Spin spinning={loading}>
-                <div className="gantt-container" ref={containerRef}>
-                    <div className="gantt-header">
-                        <div className="task-info-header">Задачи</div>
-                        <div className="time-units-header">
-                            {timeUnits.map((unit, index) => (
-                                <div key={index} className="time-unit-cell">
-                                    {formatTimeUnit(unit)}
+                <Spin spinning={loading}>
+                    <div className="gantt-container" ref={containerRef}>
+                        <div className="gantt-header">
+                            <div className="task-info-header">Задачи</div>
+                            <div className="time-units-header" ref={timeUnitsHeaderRef}>
+                                {timeUnits.map((unit, index) => (
+                                    <div key={index} className="time-unit-cell">
+                                        {formatTimeUnit(unit)}
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                        <div className="gantt-body" ref={ganttBodyRef}>
+                            {displayData.map(task => (
+                                <div key={task.id} className="gantt-row">
+                                    <div className="task-info">
+                                        <div 
+                                            className="task-title"
+                                            onClick={() => handleTaskClick(task)}
+                                        >
+                                            {task.title}
+                                        </div>
+                                        <div className="task-dates">
+                                            <span className="task-date">{moment(task.start_date || task.created_at).format('DD.MM.YYYY')}</span>
+                                            <span className="task-date-separator">→</span>
+                                            <span className="task-date">{moment(task.due_date).format('DD.MM.YYYY')}</span>
+                                        </div>
+                                    </div>
+                                    <div className="time-units-grid">
+                                        <div className="today-indicator" style={getTodayPosition()}></div>
+                                        <div className="task-bar-container" style={getTaskPosition(task)}>
+                                            <div 
+                                                className="task-resize-handle-left"
+                                                onMouseDown={(e) => handleResizeStart(e, task, 'start')}
+                                            />
+                                            <div 
+                                                className="task-duration-bar"
+                                                style={{
+                                                    backgroundColor: getTaskColor(task.priority)
+                                                }}
+                                            />
+                                            <div 
+                                                className="task-resize-handle"
+                                                onMouseDown={(e) => handleResizeStart(e, task, 'end')}
+                                            />
+                                        </div>
+                                        {timeUnits.map((_, index) => (
+                                            <div key={index} className="time-unit-cell-grid" />
+                                        ))}
+                                    </div>
                                 </div>
                             ))}
                         </div>
                     </div>
-                    <div className="gantt-body">
-                        {displayData.map(task => (
-                            <div key={task.id} className="gantt-row">
-                                <div className="task-info">
-                                    <div 
-                                        className="task-title"
-                                        onClick={() => handleTaskClick(task)}
-                                    >
-                                        {task.title}
-                                    </div>
-                                    <div className="task-dates">
-                                        <span className="task-date">{moment(task.created_at).format('DD.MM.YYYY')}</span>
-                                        <span className="task-date-separator">→</span>
-                                        <span className="task-date">{moment(task.due_date).format('DD.MM.YYYY')}</span>
-                                    </div>
-                                </div>
-                                <div className="time-units-grid">
-                                    <div className="task-bar-container" style={getTaskPosition(task)}>
-                                        <div 
-                                            className="task-duration-bar"
-                                            style={{
-                                                backgroundColor: getTaskColor(task.priority)
-                                            }}
-                                        />
-                                        <div 
-                                            className="task-resize-handle"
-                                            onMouseDown={(e) => handleResizeStart(e, task)}
-                                        />
-                                    </div>
-                                    {timeUnits.map((_, index) => (
-                                        <div key={index} className="time-unit-cell-grid" />
-                                    ))}
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </Spin>
-            {selectedTask && (
-                <TaskModal
-                    task={selectedTask}
-                    visible={isModalVisible}
-                    onCancel={handleModalClose}
-                    onUpdate={onTaskUpdate}
-                />
-            )}
-        </div>
+                </Spin>
+                {selectedTask && (
+                    <TaskModal
+                        task={selectedTask}
+                        visible={isModalVisible}
+                        onCancel={handleModalClose}
+                        onUpdate={onTaskUpdate}
+                    />
+                )}
+            </div>
+        </ConfigProvider>
     );
 };
 export default TaskTimeline; 
