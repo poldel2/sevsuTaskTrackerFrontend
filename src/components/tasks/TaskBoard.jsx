@@ -49,19 +49,16 @@ const TaskBoard = ({ project }) => {
         priority: [],
         column_id: [],
     });
-    const [paginationState, setPaginationState] = useState({ current: 1, pageSize: 15 });
 
     const handleFilterChange = (filterType, values) => {
         setAppliedFilters(prev => ({
             ...prev,
             [filterType]: values,
         }));
-        setPaginationState(prev => ({ ...prev, current: 1 }));
     };
 
     const resetFilters = () => {
         setAppliedFilters({ priority: [], column_id: [] });
-        setPaginationState(prev => ({ ...prev, current: 1 }));
     };
 
     const filterMenu = (
@@ -247,8 +244,7 @@ const TaskBoard = ({ project }) => {
             if (newColumnId && newColumnId !== activeTask.column_id) {
                 try {
                     const updatedTask = await updateTask(taskId, projectData.id, {
-                        column_id: newColumnId,
-                        title: activeTask.title,
+                        column_id: newColumnId
                     });
                     const assignee = users.find(user => user.id === updatedTask.assignee_id);
                     const enrichedTask = {
@@ -302,13 +298,16 @@ const TaskBoard = ({ project }) => {
         } else if (activeView === "Календарь") {
             return <TaskCalendar tasks={filteredTasks} />;
         } else if (activeView === "Список") {
-            return <TaskList 
-                tasks={filteredTasks}
-                onUpdate={fetchData}
-                projectId={projectData.id}
-                columns={columns}
-                paginationState={paginationState}
-            />;
+            return (
+                <div className="task-list-view-wrapper">
+                    <TaskList 
+                        tasks={filteredTasks}
+                        onUpdate={fetchData}
+                        projectId={projectData.id}
+                        columns={columns}
+                    />
+                </div>
+            );
         } else if (activeView === "Хронология") {
             return <TaskTimeline 
                 tasks={filteredTasks}

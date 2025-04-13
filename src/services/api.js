@@ -180,4 +180,21 @@ export const deleteTask = async (taskId) => {
     return response.data;
 };
 
+export const getActivities = async (projectId, filters = {}) => {
+    const { page = 1, pageSize = 10, type, date, projectId: filteredProjectId } = filters;
+    
+    let url = `/projects/${projectId || ''}/activities?offset=${(page - 1) * pageSize}&limit=${pageSize}`;
+    
+    if (type && type !== 'all') {
+        url += `&action=${type}`;
+    }
+    
+    if (date && date.length === 2) {
+        url += `&start_date=${date[0].toISOString()}&end_date=${date[1].toISOString()}`;
+    }
+    
+    const response = await api.get(url);
+    return response.data;
+}
+
 export default api;

@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Tag, Empty } from 'antd';
 import moment from 'moment';
 import TaskModal from './TaskModal';
-import '../../styles/App.css';
+import '../../styles/TaskListCustom.css';
 
 const priorityColors = {
-    high: 'red',
-    medium: 'orange',
-    low: 'green',
+    high: '#dc3545',
+    medium: '#ffc107',
+    low: '#28a745',
 };
 
 const priorityLabels = {
@@ -16,26 +15,10 @@ const priorityLabels = {
     low: 'Низкий',
 };
 
-const TaskList = ({ tasks, onUpdate, projectId, columns: boardColumns }) => { 
+const TaskList = ({ tasks = [], onUpdate, projectId, columns: boardColumns = [] }) => {
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [selectedTask, setSelectedTask] = useState(null);
-    const [tableParams, setTableParams] = useState({
-        pagination: {
-            current: 1,
-            pageSize: 15,
-        },
-        sorter: {},
-    });
-
-    useEffect(() => {
-        setTableParams(prev => ({
-            ...prev,
-            pagination: {
-                ...prev.pagination,
-                current: 1,
-            },
-        }));
-    }, [tasks]);
+    const [sortConfig, setSortConfig] = useState({ key: null, direction: 'none' });
 
     const handleRowClick = (task) => {
         setSelectedTask({ ...task, project_id: projectId });
@@ -55,93 +38,112 @@ const TaskList = ({ tasks, onUpdate, projectId, columns: boardColumns }) => {
         }
     };
 
-    const handleTableChange = (pagination, _tableFilters, sorter) => {
-        setTableParams({
-            pagination,
-            sorter: Array.isArray(sorter) ? sorter[0] : sorter,
-        });
-    };
-
     const getColumnName = (columnId) => {
         const column = boardColumns.find(col => col.id === columnId);
         return column ? column.name : 'Неизвестно';
     };
 
-    const columns = [
-        {
-            title: 'Название',
-            dataIndex: 'title',
-            key: 'title',
-            sorter: (a, b) => a.title.localeCompare(b.title),
-            sortOrder: tableParams.sorter?.field === 'title' && tableParams.sorter?.order,
-            render: (text, record) => <a onClick={(e) => { e.stopPropagation(); handleRowClick(record); }}>{text}</a>,
-            ellipsis: true, 
-        },
-        {
-            title: 'Приоритет',
-            dataIndex: 'priority',
-            key: 'priority',
-            width: 120, 
-            sorter: (a, b) => {
-                const priorityOrder = { low: 0, medium: 1, high: 2 };
-                return priorityOrder[a.priority] - priorityOrder[b.priority];
-            },
-            sortOrder: tableParams.sorter?.field === 'priority' && tableParams.sorter?.order,
-            render: (priority) => (
-                <Tag color={priorityColors[priority] || 'default'}>
-                    {priorityLabels[priority] || priority}
-                </Tag>
-            ),
-        },
-        {
-            title: 'Дедлайн',
-            dataIndex: 'due_date',
-            key: 'due_date',
-            width: 120,
-            sorter: (a, b) => moment(a.due_date).unix() - moment(b.due_date).unix(),
-            sortOrder: tableParams.sorter?.field === 'due_date' && tableParams.sorter?.order,
-            render: (date) => (date ? moment(date).format('DD.MM.YYYY') : 'Нет'),
-        },
-        {
-            title: 'Исполнитель',
-            dataIndex: 'assignee_name',
-            key: 'assignee_name',
-            width: 180,
-            sorter: (a, b) => (a.assignee_name || '').localeCompare(b.assignee_name || ''),
-            sortOrder: tableParams.sorter?.field === 'assignee_name' && tableParams.sorter?.order,
-            render: (name) => name || <Tag>Не назначен</Tag>,
-            ellipsis: true,
-        },
-         {
-            title: 'Статус',
-            dataIndex: 'column_id',
-            key: 'column_id',
-            width: 150,
-            render: (columnId) => getColumnName(columnId), 
-            sorter: (a, b) => getColumnName(a.column_id).localeCompare(getColumnName(b.column_id)),
-            sortOrder: tableParams.sorter?.field === 'column_id' && tableParams.sorter?.order,
-        },
-    ];
+    const requestSort = (key) => {
+        let direction = 'asc';
+        if (sortConfig.key === key && sortConfig.direction === 'asc') {
+            direction = 'desc';
+        } else if (sortConfig.key === key && sortConfig.direction === 'desc') {
+            direction = 'none';
+            key = null;
+        }
+        setSortConfig({ key, direction });
+    };
+
+    const getSortDirectionClass = (key) => {
+        if (!sortConfig.key || sortConfig.key !== key || sortConfig.direction === 'none') {
+            return 'sortable';
+        }
+        return sortConfig.direction === 'asc' ? 'sorted-asc' : 'sorted-desc';
+    };
+
+    const sortedTasks = React.useMemo(() => {
+        let sortableItems = [...tasks];
+        if (sortConfig.key !== null && sortConfig.direction !== 'none') {
+            sortableItems.sort((a, b) => {
+                let aValue = a[sortConfig.key];
+                let bValue = b[sortConfig.key];
+
+                if (sortConfig.key === 'priority') {
+                    const priorityOrder = { low: 0, medium: 1, high: 2 };
+                    aValue = priorityOrder[aValue];
+                    bValue = priorityOrder[bValue];
+                } else if (sortConfig.key === 'due_date') {
+                    const aDate = aValue ? moment(aValue).unix() : (sortConfig.direction === 'asc' ? Infinity : -Infinity);
+                    const bDate = bValue ? moment(bValue).unix() : (sortConfig.direction === 'asc' ? Infinity : -Infinity);
+                    return sortConfig.direction === 'asc' ? aDate - bDate : bDate - aDate;
+                } else if (sortConfig.key === 'assignee_name') {
+                    aValue = aValue || '';
+                    bValue = bValue || '';
+                } else if (sortConfig.key === 'column_id') {
+                    aValue = getColumnName(aValue);
+                    bValue = getColumnName(bValue);
+                } else if (typeof aValue === 'string') {
+                    aValue = aValue.toLowerCase();
+                    bValue = bValue.toLowerCase();
+                }
+
+                if (aValue < bValue) {
+                    return sortConfig.direction === 'asc' ? -1 : 1;
+                }
+                if (aValue > bValue) {
+                    return sortConfig.direction === 'asc' ? 1 : -1;
+                }
+                return 0;
+            });
+        }
+        return sortableItems;
+    }, [tasks, sortConfig, boardColumns]);
+
+    if (!tasks || tasks.length === 0) {
+        return <div className="no-tasks-message"><p>Нет задач для отображения</p></div>;
+    }
 
     return (
-        <div className="task-list-container task-list-table-override" style={{ padding: '20px', background: '#fff', borderRadius: '8px' }}>
-            <Table
-                columns={columns}
-                dataSource={tasks.map(task => ({ ...task, key: task.id }))}
-                rowClassName="task-list-row"
-                onRow={(record) => ({
-                    onClick: () => handleRowClick(record),
-                })}
-                pagination={tableParams.pagination}
-                onChange={handleTableChange}
-                style={{ cursor: 'pointer' }}
-                scroll={{ y: 'calc(100vh - 300px)', x: 'max-content' }}
-                size="middle"
-                showSorterTooltip={false}
-                locale={{
-                    emptyText: <Empty description="Нет задач для отображения" image={Empty.PRESENTED_IMAGE_SIMPLE} />
-                }}
-            />
+        <div className="custom-task-list task-list-table-override">
+            <table className="custom-task-list-table">
+                <thead>
+                    <tr>
+                        <th onClick={() => requestSort('title')} className={getSortDirectionClass('title')}>
+                            Название
+                        </th>
+                        <th onClick={() => requestSort('priority')} className={getSortDirectionClass('priority')}>
+                            Приоритет
+                        </th>
+                        <th onClick={() => requestSort('due_date')} className={getSortDirectionClass('due_date')}>
+                            Дедлайн
+                        </th>
+                        <th onClick={() => requestSort('assignee_name')} className={getSortDirectionClass('assignee_name')}>
+                            Исполнитель
+                        </th>
+                        <th onClick={() => requestSort('column_id')} className={getSortDirectionClass('column_id')}>
+                            Статус
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {sortedTasks.map(task => (
+                        <tr key={task.id} onClick={() => handleRowClick(task)} className="clickable-row">
+                            <td>{task.title}</td>
+                            <td>
+                                <span 
+                                    className="priority-tag"
+                                    style={{ backgroundColor: priorityColors[task.priority] || '#6c757d' }}
+                                >
+                                    {priorityLabels[task.priority] || task.priority}
+                                </span>
+                            </td>
+                            <td>{task.due_date ? moment(task.due_date).format('DD.MM.YYYY') : '-'}</td>
+                            <td>{task.assignee_name || <span className="unassigned-tag">Не назначен</span>}</td>
+                            <td>{getColumnName(task.column_id)}</td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
             {selectedTask && (
                 <TaskModal
                     task={selectedTask}

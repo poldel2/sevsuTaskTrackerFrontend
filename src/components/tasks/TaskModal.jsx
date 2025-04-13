@@ -64,18 +64,37 @@ const TaskModal = ({ task, visible, onCancel, onUpdate }) => {
             const values = await form.validateFields();
             setLoading(true);
             
-            const updatedValues = {
-                ...values,
-                due_date: values.due_date ? moment(values.due_date).format('YYYY-MM-DD') : null
-            };
+            // Собираем только измененные поля
+            const changedValues = {};
             
-            await updateTask(task.id, task.project_id, updatedValues);
-            message.success("Задача успешно обновлена");
+            Object.keys(values).forEach(key => {
+                const initialValue = task[key];
+                let newValue = values[key];
+                
+                // Обработка даты
+                if (key === 'due_date') {
+                    const initialDate = initialValue ? moment(initialValue).format('YYYY-MM-DD') : null;
+                    const newDate = newValue ? moment(newValue).format('YYYY-MM-DD') : null;
+                    if (initialDate !== newDate) {
+                        changedValues[key] = newDate;
+                    }
+                }
+                // Обработка остальных полей
+                else if (newValue !== initialValue) {
+                    changedValues[key] = newValue;
+                }
+            });
+            
+            // Отправляем запрос только если есть изменения
+            if (Object.keys(changedValues).length > 0) {
+                await updateTask(task.id, task.project_id, changedValues);
+                message.success("Задача успешно обновлена");
+                if (onUpdate) {
+                    onUpdate();
+                }
+            }
             onCancel();
             
-            if (onUpdate) {
-                onUpdate();
-            }
         } catch (error) {
             console.error("Ошибка при сохранении задачи:", error);
             message.error("Не удалось обновить задачу");
@@ -187,4 +206,4 @@ const TaskModal = ({ task, visible, onCancel, onUpdate }) => {
     );
 };
 
-export default TaskModal; 
+export default TaskModal;

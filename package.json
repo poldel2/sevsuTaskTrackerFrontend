@@ -15,8 +15,13 @@
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
+    "@mui/icons-material": "^7.0.1",
+    "@mui/material": "^7.0.1",
     "antd": "^5.7.0",
     "axios": "^1.7.2",
+    "date-fns": "^4.1.0",
     "dayjs": "^1.11.13",
     "https-proxy-agent": "^7.0.6",
     "react": "^18.3.1",
@@ -24,6 +29,7 @@
     "react-dom": "^18.3.1",
     "react-router-dom": "^7.1.5",
     "sass-embedded": "^1.86.0",
+    "socket.io-client": "^4.8.1",
     "wscat": "^6.0.1"
   },
   "devDependencies": {
