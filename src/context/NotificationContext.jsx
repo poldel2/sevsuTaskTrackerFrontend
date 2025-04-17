@@ -1,29 +1,42 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { useWebSocket } from './WebSocketContext';
 import { useAuth } from './AuthContext';
-import api from '../services/api';
+import { 
+  getNotifications, 
+  markNotificationAsRead, 
+  markAllNotificationsAsRead as markAllRead,
+  deleteNotification as deleteNotif,
+  fetchTaskDetails
+} from '../services/api';
+import { useNavigate } from 'react-router-dom';
+import TaskModal from '../components/tasks/TaskModal';
 
 const NotificationContext = createContext();
 
 export const NotificationProvider = ({ children }) => {
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [selectedTask, setSelectedTask] = useState(null);
+  const [isTaskModalVisible, setIsTaskModalVisible] = useState(false);
   const { socket } = useWebSocket();
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   const fetchNotifications = useCallback(async () => {
+    if (!user) return;
+    
     try {
-      const response = await api.get('/notifications');
-      setNotifications(response.data);
-      setUnreadCount(response.data.filter(n => !n.read).length);
+      const data = await getNotifications();
+      setNotifications(data);
+      setUnreadCount(data.filter(n => !n.read).length);
     } catch (error) {
       console.error('Error fetching notifications:', error);
     }
-  }, []);
+  }, [user]);
 
   const markAsRead = useCallback(async (notificationId) => {
     try {
-      await api.post(`/notifications/${notificationId}/read`);
+      await markNotificationAsRead(notificationId);
       setNotifications(prev => 
         prev.map(n => n.id === notificationId ? { ...n, read: true } : n)
       );
@@ -35,7 +48,7 @@ export const NotificationProvider = ({ children }) => {
 
   const markAllAsRead = useCallback(async () => {
     try {
-      await api.post('/notifications/mark-all-read');
+      await markAllRead();
       setNotifications(prev => prev.map(n => ({ ...n, read: true })));
       setUnreadCount(0);
     } catch (error) {
@@ -45,7 +58,7 @@ export const NotificationProvider = ({ children }) => {
 
   const deleteNotification = useCallback(async (notificationId) => {
     try {
-      await api.delete(`/notifications/${notificationId}`);
+      await deleteNotif(notificationId);
       setNotifications(prev => prev.filter(n => n.id !== notificationId));
       setUnreadCount(prev => 
         notifications.find(n => n.id === notificationId && !n.read) ? prev - 1 : prev
@@ -55,26 +68,53 @@ export const NotificationProvider = ({ children }) => {
     }
   }, [notifications]);
 
-  // Обработка действий уведомлений
   const handleNotificationAction = useCallback(async (notification) => {
-    const { type, metadata } = notification;
-    
-    switch (type) {
-      case 'task_assigned':
-      case 'task_updated':
-        window.location.href = `/tasks/${metadata.task_id}`;
-        break;
+    try {
+      const { type, notification_metadata: metadata } = notification;
       
-      case 'team_invitation':
-        window.location.href = `/projects/${metadata.project_id}`;
-        break;
+      if (!metadata) {
+        console.warn('No metadata in notification:', notification);
+        return;
+      }
+
+      if (!notification.read) {
+        await markAsRead(notification.id);
+      }
+      
+      switch (type) {
+        case 'task_assigned':
+        case 'task_updated':
+          if (metadata.task_id && metadata.project_id) {
+            const task = await fetchTaskDetails(metadata.task_id, metadata.project_id);
+            if (task) {
+              setSelectedTask(task);
+              setIsTaskModalVisible(true);
+            }
+          }
+          break;
         
-      default:
-        console.warn('Unknown notification type:', type);
+        case 'team_invitation':
+          if (metadata.project_id) {
+            navigate(`/projects/${metadata.project_id}`);
+          }
+          break;
+          
+        default:
+          console.warn('Unknown notification type:', type);
+      }
+    } catch (error) {
+      console.error('Error handling notification action:', error);
     }
-    
-    await markAsRead(notification.id);
-  }, [markAsRead]);
+  }, [markAsRead, navigate]);
+
+  const handleTaskModalClose = () => {
+    setIsTaskModalVisible(false);
+    setSelectedTask(null);
+  };
+
+  const handleTaskUpdate = (updatedTask) => {
+    setSelectedTask(updatedTask);
+  };
 
   useEffect(() => {
     if (user) {
@@ -84,15 +124,20 @@ export const NotificationProvider = ({ children }) => {
 
   useEffect(() => {
     if (socket) {
-      socket.on('notification', (newNotification) => {
-        setNotifications(prev => [newNotification, ...prev]);
-        if (!newNotification.read) {
-          setUnreadCount(prev => prev + 1);
+      socket.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        if (data.type === 'notification') {
+          const newNotification = data.data;
+          setNotifications(prev => [newNotification, ...prev]);
+          if (!newNotification.read) {
+            setUnreadCount(prev => prev + 1);
+          }
         }
-      });
+      };
 
-      return () => {
-        socket.off('notification');
+      socket.onerror = (error) => {
+        console.error('WebSocket error:', error);
+        socket.close();
       };
     }
   }, [socket]);
@@ -103,12 +148,24 @@ export const NotificationProvider = ({ children }) => {
     markAsRead,
     markAllAsRead,
     deleteNotification,
-    handleNotificationAction
+    handleNotificationAction,
+    selectedTask,
+    isTaskModalVisible,
+    handleTaskModalClose,
+    handleTaskUpdate
   };
 
   return (
     <NotificationContext.Provider value={value}>
       {children}
+      {selectedTask && (
+        <TaskModal
+          task={selectedTask}
+          visible={isTaskModalVisible}
+          onCancel={handleTaskModalClose}
+          onUpdate={handleTaskUpdate}
+        />
+      )}
     </NotificationContext.Provider>
   );
 };

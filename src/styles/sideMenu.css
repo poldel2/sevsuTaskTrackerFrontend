@@ -6,15 +6,15 @@
     display: flex;
     flex-direction: column;
     position: relative;
-    transition: transform 0.3s ease-in-out;
+    transition: all 0.3s ease-in-out;
     min-width: 185px;
 }
 
 .side-menu.collapsed {
-    width:0;
+    width: 0;
     transform: translateX(-100%);
     min-width: 0;
-
+    padding: 0;
 }
 
 .toggle-menu-btn {

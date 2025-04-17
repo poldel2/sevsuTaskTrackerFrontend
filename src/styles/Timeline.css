@@ -8,6 +8,7 @@
     overflow: auto;
     display: flex;
     flex-direction: column;
+    margin-left: 15px;
 }
 
 .timeline-header {

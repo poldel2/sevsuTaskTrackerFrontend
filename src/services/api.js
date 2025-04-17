@@ -1,6 +1,7 @@
 import axios from 'axios';
 
 export const API_URL = import.meta.env.VITE_API_URL || 'http://api.sevsutasktracker.ru';
+export const WS_URL = import.meta.env.VITE_WS_URL || 'ws://api.sevsutasktracker.ru';
 
 const api = axios.create({
     baseURL: API_URL,
@@ -165,18 +166,18 @@ export const fetchTasks = async (projectId) => {
     return response.data;
 };
 
-export const updateTaskStatus = async (taskId, updateData) => {
-    const response = await api.patch(`/tasks/${taskId}/status`, updateData);
+export const updateTaskStatus = async (taskId, projectId, updateData) => {
+    const response = await api.patch(`/projects/${projectId}/tasks/${taskId}/status`, updateData);
     return response.data;
 };
 
-export const fetchTaskDetails = async (taskId) => {
-    const response = await api.get(`/tasks/${taskId}`);
+export const fetchTaskDetails = async (taskId, projectId) => {
+    const response = await api.get(`/projects/${projectId}/tasks/${taskId}`);
     return response.data;
 };
 
-export const deleteTask = async (taskId) => {
-    const response = await api.delete(`/tasks/${taskId}`);
+export const deleteTask = async (taskId, projectId) => {
+    const response = await api.delete(`/projects/${projectId}/tasks/${taskId}`);
     return response.data;
 };
 
@@ -196,5 +197,31 @@ export const getActivities = async (projectId, filters = {}) => {
     const response = await api.get(url);
     return response.data;
 }
+
+// Notifications API
+export const getNotifications = async (params = {}) => {
+    const response = await api.get('/notifications', { params });
+    return response.data;
+};
+
+export const markNotificationAsRead = async (notificationId) => {
+    const response = await api.post(`/notifications/${notificationId}/read`);
+    return response.data;
+};
+
+export const markAllNotificationsAsRead = async () => {
+    const response = await api.post('/notifications/mark-all-read');
+    return response.data;
+};
+
+export const deleteNotification = async (notificationId) => {
+    const response = await api.delete(`/notifications/${notificationId}`);
+    return response.data;
+};
+
+export const getNotificationsWebSocketUrl = () => {
+    const token = localStorage.getItem('token');
+    return `${WS_URL}/notifications/ws?token=${token}`;
+};
 
 export default api;

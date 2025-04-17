@@ -331,6 +331,7 @@ const TaskBoard = ({ project }) => {
                                 tasks={filteredTasks.filter((t) => t.column_id === column.id)}
                                 draggingOver={draggingOver}
                                 activeTaskId={activeTaskId}
+                                handleTaskUpdate={handleTaskUpdate} // Добавляем передачу функции
                             />
                         ))}
                     </div>

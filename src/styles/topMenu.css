@@ -1,8 +1,9 @@
 .top-menu {
     display: flex;
     align-items: center;
-    height: 9vh; /* Высота хедера */
-    background-color: #ffffff; /* Белый фон */
+    height: 90px !important;
+    min-height: 90px !important;
+    background-color: #ffffff;
     padding: 0 3vw;
     border-bottom: 1px solid #e0e0e0;
     /*box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);*/
@@ -18,7 +19,7 @@
     height: 100%;
     display: flex;
     gap: 30px;
-    margin-left: 5%; /* Отступ после логотипа */
+    margin-left: 5%;
 }
 
 
@@ -74,7 +75,7 @@
     font-size: 20px;
     cursor: pointer;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-    margin-left: auto; /* Отодвигаем аватарку вправо */
+    margin-left: auto;
     display: flex;
     align-items: center;
     cursor: pointer;
@@ -97,13 +98,13 @@
 }
 
 .logo {
-    height: 100%; /* Логотип растягивается по высоте хедера */
+    height: 100%;
     display: flex;
     align-items: center;
 }
 
 .logo-img {
-    height: 70%; /* 90% от высоты родительского контейнера (хедера) */
-    width: auto; /* Автоматическая ширина, чтобы не исказить пропорции */
-    object-fit: contain; /* Корректно отображает картинку без обрезки */
+    height: 70%; 
+    width: auto; 
+    object-fit: contain;
 }

@@ -36,7 +36,7 @@ const priorityOptions = [
     { value: "low", label: "Низкий", color: "green" },
 ];
 
-const TaskItem = ({ task, activeTaskId }) => {
+const TaskItem = ({ task, activeTaskId, handleTaskUpdate }) => {
     const [isModalVisible, setIsModalVisible] = useState(false);
     const cleanupRef = useRef(null);
 
@@ -166,7 +166,7 @@ const TaskItem = ({ task, activeTaskId }) => {
                 task={task}
                 visible={isModalVisible}
                 onCancel={handleModalClose}
-                onUpdate={() => window.location.reload()}
+                onUpdate={handleTaskUpdate}
             />
         </>
     );

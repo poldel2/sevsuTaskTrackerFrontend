@@ -5,7 +5,7 @@ import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities';
 import TaskItem from './TaskItem';
 
-export const TaskColumn = ({ column, tasks, draggingOver, activeTaskId }) => {
+export const TaskColumn = ({ column, tasks, draggingOver, activeTaskId, handleTaskUpdate }) => {
     const { id, name, color } = column;
 
     const {
@@ -34,6 +34,13 @@ export const TaskColumn = ({ column, tasks, draggingOver, activeTaskId }) => {
         cursor: 'grab'
     };
 
+    // Обработчик обновления задачи для колонки
+    const handleTaskUpdateInColumn = (updatedTask) => {
+        if (handleTaskUpdate) {
+            handleTaskUpdate(updatedTask);
+        }
+    };
+
     return (
         <div
             ref={(node) => {
@@ -55,7 +62,12 @@ export const TaskColumn = ({ column, tasks, draggingOver, activeTaskId }) => {
             <div className="task-column-body">
                 <SortableContext items={tasks.map(task => task.id)} strategy={verticalListSortingStrategy}>
                     {tasks.map(task => (
-                        <TaskItem key={task.id} task={task} activeTaskId={activeTaskId} />
+                        <TaskItem 
+                            key={task.id} 
+                            task={task} 
+                            activeTaskId={activeTaskId}
+                            handleTaskUpdate={handleTaskUpdateInColumn}
+                        />
                     ))}
                 </SortableContext>
             </div>

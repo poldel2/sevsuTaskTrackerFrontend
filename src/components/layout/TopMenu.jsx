@@ -16,10 +16,11 @@ const menuItems = [
 
 const TopMenu = () => {
     const { user, logout } = useAuth();
-    const { notifications, unreadCount, markAsRead, handleNotificationAction } = useNotifications();
+    const { notifications, unreadCount, handleNotificationAction } = useNotifications();
     const navigate = useNavigate();
     const { projectId } = useParams();
     const [activityModalVisible, setActivityModalVisible] = useState(false);
+    const [notificationMenuVisible, setNotificationMenuVisible] = useState(false);
 
     const handleTeamsClick = () => {
         if (!user) {
@@ -107,7 +108,13 @@ const TopMenu = () => {
                     onClose={() => setActivityModalVisible(false)}
                 />
                 
-                <Dropdown overlay={notificationMenu} trigger={["click"]} placement="bottomRight">
+                <Dropdown 
+                    overlay={notificationMenu} 
+                    trigger={["click"]} 
+                    placement="bottomRight"
+                    open={notificationMenuVisible}
+                    onOpenChange={setNotificationMenuVisible}
+                >
                     <Badge count={unreadCount} className="notification-badge">
                         <BellOutlined className="notification-icon" />
                     </Badge>
