@@ -18,7 +18,6 @@ function App() {
     const initialLoadCompleted = useRef(false);
     const [isLoading, setIsLoading] = useState(true);
 
-    // Единый эффект для загрузки проектов и обработки выбранного проекта
     useEffect(() => {
         const loadProjectsAndSetSelected = async () => {
             if (initialLoadCompleted.current) return;
@@ -28,11 +27,9 @@ function App() {
                 const data = await getProjects();
                 setProjects(data);
                 
-                // Если есть проект в location.state, устанавливаем его
                 if (location.state?.selectedProject) {
                     setSelectedProject(location.state.selectedProject);
                 }
-                // Иначе, если есть проекты, устанавливаем первый
                 else if (data.length > 0) {
                     setSelectedProject(data[0]);
                 }
@@ -48,7 +45,6 @@ function App() {
         loadProjectsAndSetSelected();
     }, [location.state]);
 
-    // Отдельный эффект только для изменений в location после начальной загрузки
     useEffect(() => {
         if (initialLoadCompleted.current && location.state?.selectedProject) {
             setSelectedProject(location.state.selectedProject);
@@ -85,11 +81,10 @@ function App() {
 
                             setProjects(updatedProjects);
 
-                            // Находим созданный проект в обновленном списке
                             const newSelectedProject = updatedProjects.find(p => p.id === createdProject.id);
 
                             if (newSelectedProject) {
-                                setSelectedProject(newSelectedProject); // Устанавливаем новый проект, если нашли
+                                setSelectedProject(newSelectedProject);
                             } else {
                                 message.error("Ошибка: созданный проект не найден в обновленном списке");
                             }

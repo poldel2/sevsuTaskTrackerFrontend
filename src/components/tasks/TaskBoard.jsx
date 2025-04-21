@@ -393,7 +393,15 @@ const TaskBoard = ({ project }) => {
 
             <div className="task-content">
                 {renderContent()}
-                <TaskViewSidebar activeView={activeView} setActiveView={setActiveView} />
+                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                    <TaskViewSidebar activeView={activeView} setActiveView={setActiveView} />
+                    <button 
+                        className="chat-button"
+                        onClick={() => setActiveView("Чат")}
+                    >
+                        <img src="/assets/chat_icon.svg" alt="chat" className="chat-icon" />
+                    </button>
+                </div>
             </div>
 
             <Modal

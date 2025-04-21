@@ -1,5 +1,3 @@
-
-
 .custom-task-list {
     width: 100%;
     overflow-x: auto; 
@@ -34,22 +32,44 @@
   }
   
   .custom-task-list-table th.sortable::after {
-      content: '\\2195'; 
-      opacity: 0.3;
-      margin-left: 5px;
-      font-size: 0.8em;
+    content: '';
+    display: inline-block;
+    width: 0;
+    height: 0;
+    margin-left: 5px;
+    vertical-align: middle;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-bottom: 4px solid #999;
+    border-top: 4px solid #999;
+    opacity: 0.3;
   }
   
   .custom-task-list-table th.sorted-asc::after {
-      content: '\\2191'; 
-      opacity: 1;
+    content: '';
+    display: inline-block;
+    width: 0;
+    height: 0;
+    margin-left: 5px;
+    vertical-align: middle;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-bottom: 4px solid currentColor;
+    opacity: 1;
   }
   
   .custom-task-list-table th.sorted-desc::after {
-      content: '\\2193'; 
-      opacity: 1;
+    content: '';
+    display: inline-block;
+    width: 0;
+    height: 0;
+    margin-left: 5px;
+    vertical-align: middle;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 4px solid currentColor;
+    opacity: 1;
   }
-  
   
   .custom-task-list-table tbody tr.clickable-row:hover {
     background-color: #f1f3f5; 
@@ -114,4 +134,3 @@
     height: 0 !important;
     background-color: transparent !important; 
   }
-  

@@ -55,9 +55,13 @@ const ActivitiesPage = () => {
   const fetchActivities = async () => {
     try {
       setLoading(true);
-      const data = await getActivities(filters.projectId, filters);
-      setActivities(data);
-      setTotal(data.length);
+      const response = await getActivities(filters.projectId, {
+        ...filters,
+        offset: (filters.page - 1) * filters.pageSize,
+        limit: filters.pageSize
+      });
+      setActivities(response.items);
+      setTotal(response.total);
     } catch (error) {
       console.error('Failed to fetch activities:', error);
     } finally {
