@@ -173,7 +173,9 @@ const TaskBoard = ({ project }) => {
 
     const handleDragStart = (event) => {
         const { active } = event;
-        if (active.data.current.type === 'task') {
+        setDraggingOver(null);
+        
+        if (active.data.current && active.data.current.type === 'task') {
             setActiveTask(tasks.find((task) => task.id === active.id));
             setActiveTaskId(active.id);
         }
@@ -186,18 +188,38 @@ const TaskBoard = ({ project }) => {
             return;
         }
 
-        let targetColumnId;
-        if (columns.some(col => col.id === over.id)) {
-            targetColumnId = over.id;
-        } else {
-            const overTask = tasks.find(t => t.id === over.id);
-            targetColumnId = overTask ? overTask.column_id : null;
+        if (active.data?.current?.type !== 'task') {
+            return;
         }
 
-        const draggedTask = tasks.find(t => t.id === active.id);
-        const currentColumnId = draggedTask ? draggedTask.column_id : null;
-
-        setDraggingOver(targetColumnId !== currentColumnId ? targetColumnId : null);
+        const taskId = active.id;
+        const activeTask = tasks.find(t => t.id === taskId);
+        
+        const activeColumn = columns.find(col => col.id === activeTask?.column_id);
+        const sourcePosition = activeColumn?.position;
+        
+        let targetColumnId = null;
+        let targetPosition = null;
+        
+        const overColumn = columns.find(col => col.id === over.id);
+        if (overColumn) {
+            targetColumnId = overColumn.id;
+            targetPosition = overColumn.position;
+        } else {
+            const overTask = tasks.find(t => t.id === over.id);
+            if (overTask) {
+                const taskColumn = columns.find(col => col.id === overTask.column_id);
+                targetColumnId = taskColumn?.id;
+                targetPosition = taskColumn?.position;
+            }
+        }
+        
+        if (targetColumnId && targetPosition !== sourcePosition) {
+            console.log(`Наведение: с позиции ${sourcePosition} на позицию ${targetPosition}, столбец ${targetColumnId}`);
+            setDraggingOver(targetColumnId);
+        } else {
+            setDraggingOver(null);
+        }
     };
 
     const handleDragEnd = async (event) => {
@@ -207,45 +229,36 @@ const TaskBoard = ({ project }) => {
         const activeId = active.id;
         const overId = over.id;
 
-        const isActiveColumn = columns.some(col => col.id === activeId);
-        const isOverColumn = columns.some(col => col.id === overId);
-
-        if (isActiveColumn && isOverColumn && activeId !== overId) {
-            const activeColumn = columns.find(col => col.id === activeId);
-            const overColumn = columns.find(col => col.id === overId);
-
-            const columnData = {
-                name: activeColumn.name,
-                position: overColumn.position,
-                color: activeColumn.color,
-            };
-
-            try {
-                await updateColumn(projectData.id, activeId, columnData);
-                await fetchData();
-            } catch (err) {
-                console.error('Ошибка обновления столбца:', err);
-                await fetchData();
-            }
-        }
-
-        if (!isActiveColumn) {
+        const activeType = active.data?.current?.type;
+        
+        if (activeType === 'task') {
             const taskId = activeId;
-            let newColumnId;
-
-            if (isOverColumn) {
-                newColumnId = overId;
+            let newColumnId = null;
+            
+            const overColumn = columns.find(col => col.id === overId);
+            if (overColumn) {
+                newColumnId = overColumn.id;
+                console.log(`Перетаскивание в столбец с position ${overColumn.position}`);
             } else {
                 const overTask = tasks.find(t => t.id === overId);
-                newColumnId = overTask ? overTask.column_id : null;
+                if (overTask) {
+                    const taskColumn = columns.find(col => col.id === overTask.column_id);
+                    newColumnId = taskColumn?.id;
+                    console.log(`Перетаскивание на задачу в столбце с position ${taskColumn?.position}`);
+                }
             }
-
+            
             const activeTask = tasks.find(t => t.id === taskId);
-            if (newColumnId && newColumnId !== activeTask.column_id) {
+            const currentColumnId = activeTask ? activeTask.column_id : null;
+            
+            if (newColumnId && newColumnId !== currentColumnId) {
                 try {
+                    console.log(`Обновляем задачу ${taskId}: перемещение из столбца ${currentColumnId} в столбец ${newColumnId}`);
+                    
                     const updatedTask = await updateTask(taskId, projectData.id, {
                         column_id: newColumnId
                     });
+                    
                     const assignee = users.find(user => user.id === updatedTask.assignee_id);
                     const enrichedTask = {
                         ...updatedTask,
@@ -322,20 +335,19 @@ const TaskBoard = ({ project }) => {
                 onDragOver={handleDragOver}
                 onDragEnd={handleDragEnd}
             >
-                <SortableContext items={columns.map(col => col.id)} strategy={horizontalListSortingStrategy}>
-                    <div className="task-columns" style={{ gap: getDynamicGap() }}>
-                        {columns.map((column) => (
-                            <TaskColumn
-                                key={column.id}
-                                column={column}
-                                tasks={filteredTasks.filter((t) => t.column_id === column.id)}
-                                draggingOver={draggingOver}
-                                activeTaskId={activeTaskId}
-                                handleTaskUpdate={handleTaskUpdate} // Добавляем передачу функции
-                            />
-                        ))}
-                    </div>
-                </SortableContext>
+                <div className="task-columns" style={{ gap: getDynamicGap() }}>
+                    {columns.map((column) => (
+                        <TaskColumn
+                            key={column.id}
+                            column={column}
+                            tasks={filteredTasks.filter((t) => t.column_id === column.id)}
+                            draggingOver={draggingOver}
+                            activeTaskId={activeTaskId}
+                            handleTaskUpdate={handleTaskUpdate}
+                            disableDrag={true}
+                        />
+                    ))}
+                </div>
                 <DragOverlay dropAnimation={null}>
                     {activeTask ? <TaskItem task={activeTask} /> : null}
                 </DragOverlay>

@@ -5,33 +5,26 @@ import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities';
 import TaskItem from './TaskItem';
 
-export const TaskColumn = ({ column, tasks, draggingOver, activeTaskId, handleTaskUpdate }) => {
-    const { id, name, color } = column;
+export const TaskColumn = ({ column, tasks, draggingOver, activeTaskId, handleTaskUpdate, disableDrag }) => {
+    const { id, name, color, position } = column;
 
-    const {
-        attributes,
-        listeners,
-        setNodeRef: setSortableRef,
-        transform,
-        transition
-    } = useSortable({
-        id: id,
-        data: { type: 'column', columnId: id }
-    });
-
+    // Используем useDroppable для приема перетаскиваемых элементов
     const { setNodeRef: setDroppableRef, isOver } = useDroppable({
         id: id,
-        data: { columnId: id }
+        data: { 
+            type: 'column', 
+            columnId: id,
+            position: position
+        }
     });
 
-    const style = {
-        transform: CSS.Transform.toString(transform),
-        transition,
+    const style = disableDrag ? {} : {
+        // style для draggable элементов
     };
 
     const headerStyle = {
         backgroundColor: color,
-        cursor: 'grab'
+        cursor: disableDrag ? 'default' : 'grab'
     };
 
     // Обработчик обновления задачи для колонки
@@ -41,20 +34,19 @@ export const TaskColumn = ({ column, tasks, draggingOver, activeTaskId, handleTa
         }
     };
 
+    const isHighlighted = isOver || draggingOver === id;
+
     return (
         <div
-            ref={(node) => {
-                setSortableRef(node);
-                setDroppableRef(node);
-            }}
+            ref={setDroppableRef}
             style={style}
-            className={`task-column ${isOver || draggingOver === id ? 'column-hover' : ''}`}
+            className={`task-column ${isHighlighted ? 'column-hover' : ''}`}
+            data-column-id={id}
+            data-position={position}
         >
             <div 
                 className="task-column-title"
                 style={headerStyle}
-                {...attributes}
-                {...listeners}
             >
                 {name}
             </div>
