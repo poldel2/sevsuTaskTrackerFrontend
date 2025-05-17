@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { getProject, updateProject } from '../../services/api';
+import { getProject, updateProject, uploadProjectLogo, getImageUrl } from '../../services/api';
 import { Input, Button, message } from 'antd';
+import { EditOutlined } from '@ant-design/icons';
+import ImageCropper from '../common/ImageCropper';
 import '../../styles/ProjectSettings.css';
 
 const ProjectDetails = ({ projectId }) => {
@@ -12,6 +14,7 @@ const ProjectDetails = ({ projectId }) => {
     });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const [cropFile, setCropFile] = useState(null);
 
     useEffect(() => {
         fetchProject();
@@ -57,6 +60,31 @@ const ProjectDetails = ({ projectId }) => {
         }
     };
 
+    const handleLogoUpload = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        setCropFile(file);
+    };
+
+    const handleCropComplete = async (croppedBlob) => {
+        try {
+            setLoading(true);
+            const file = new File([croppedBlob], 'logo.jpg', { type: 'image/jpeg' });
+            const updatedProject = await uploadProjectLogo(projectId, file);
+            setProject(updatedProject);
+            setFormData(prev => ({
+                ...prev,
+                logo: updatedProject.logo
+            }));
+            message.success('Логотип проекта успешно обновлен');
+        } catch (err) {
+            setError('Не удалось загрузить логотип');
+        } finally {
+            setLoading(false);
+            setCropFile(null);
+        }
+    };
+
     if (loading && !project) {
         return <div className="project-details"><p>Загрузка...</p></div>;
     }
@@ -67,42 +95,57 @@ const ProjectDetails = ({ projectId }) => {
 
     return (
         <div className="project-details">
-            <h2>Сведения о проекте</h2>
+            <h2>Сведения о проекта</h2>
             {project && (
                 <>
-                    <div className="project-logo-section">
-                        {formData.logo ? (
+                    <div className="project-header">
+                        <div className="project-logo-section">
                             <div className="project-logo-container">
-                                <img src={formData.logo} alt="Логотип проекта" className="project-logo" />
+                                {formData.logo ? (
+                                    <img src={getImageUrl(formData.logo)} alt="Логотип проекта" className="project-settings-logo" />
+                                ) : (
+                                    <div className="default-project-logo">
+                                        <span className="logo-letter">{formData.title?.[0]?.toUpperCase() || "?"}</span>
+                                    </div>
+                                )}
+                                <label className="logo-upload-button" htmlFor="logo-upload">
+                                    <EditOutlined />
+                                    <input
+                                        id="logo-upload"
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={handleLogoUpload}
+                                        style={{ display: 'none' }}
+                                    />
+                                </label>
                             </div>
-                        ) : (
-                            <div className="project-logo-container">
-                                <div className="default-project-logo">
-                                    <span className="logo-letter">{formData.title?.[0]?.toUpperCase() || "?"}</span>
-                                </div>
-                            </div>
-                        )}
-                        <Input
-                            name="logo"
-                            placeholder="URL логотипа"
-                            value={formData.logo}
-                            onChange={handleInputChange}
-                            style={{ width: '300px' }}
-                        />
-                    </div>
+                        </div>
 
-                    <div className="project-info-section">
-                        <div className="project-info-field">
+                        <div className="project-title-section">
                             <Input
                                 name="title"
                                 value={formData.title}
                                 onChange={handleInputChange}
                                 placeholder="Название проекта"
-                                style={{ borderBottom: '1px solid #d9d9d9', fontSize: '18px' }}
+                                className="project-title-input"
+                            />
+                            <div className="project-title-underline" />
+                        </div>
+                    </div>
+
+                    <div className="project-info-section">
+                        <div className="project-info-field">
+                            <div className="field-label">URL логотипа</div>
+                            <Input
+                                name="logo"
+                                placeholder="URL логотипа"
+                                value={formData.logo}
+                                onChange={handleInputChange}
                             />
                         </div>
                         
                         <div className="project-info-field">
+                            <div className="field-label">Описание</div>
                             <Input.TextArea
                                 name="description"
                                 value={formData.description}
@@ -117,12 +160,21 @@ const ProjectDetails = ({ projectId }) => {
                                 type="primary"
                                 onClick={handleSave}
                                 loading={loading}
+                                className="save-button"
                             >
                                 Сохранить изменения
                             </Button>
                             {error && <p style={{ color: 'red', marginTop: '10px' }}>{error}</p>}
                         </div>
                     </div>
+                    {cropFile && (
+                        <ImageCropper
+                            file={cropFile}
+                            aspect={1}
+                            onCropComplete={handleCropComplete}
+                            onCancel={() => setCropFile(null)}
+                        />
+                    )}
                 </>
             )}
         </div>

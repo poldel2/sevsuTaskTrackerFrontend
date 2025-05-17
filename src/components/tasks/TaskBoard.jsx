@@ -9,7 +9,7 @@ import {
     SettingOutlined,
     SearchOutlined,
 } from "@ant-design/icons";
-import { getTasks, addTask, updateTask, getColumns, updateColumn, getProjectUsers } from "../../services/api";
+import { getTasks, addTask, updateTask, getColumns, updateColumn, getProjectUsers, getImageUrl } from "../../services/api";
 import {
     DndContext,
     closestCorners,
@@ -360,7 +360,7 @@ const TaskBoard = ({ project }) => {
             <div className="task-board-header">
                 <div className="project-info">
                     {projectData.logo ? (
-                        <img src={projectData.logo} alt="Project Logo" className="project-logo" />
+                        <img src={getImageUrl(projectData.logo)} alt="Project Logo" className="project-logo" />
                     ) : (
                         <div className="default-logo">
                             <span className="logo-letter">{projectData.title?.[0]?.toUpperCase() || "?"}</span>

@@ -68,25 +68,26 @@
     color: #333;
 }
 
-.project-logo-section {
-    margin: 20px 0;
+.project-header {
     display: flex;
-    flex-direction: column;
     align-items: center;
+    gap: 30px;
+}
+
+.project-logo-section {
+    margin: 0;
+}
+project-settings-logo {
+    width: 120px;
+    height: 120px;
 }
 
 .project-logo-container {
+    position: relative;
     width: 120px;
     height: 120px;
     border-radius: 8px;
     overflow: hidden;
-    margin-bottom: 20px;
-}
-
-.project-logo {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
 }
 
 .default-project-logo {
@@ -101,15 +102,157 @@
     margin-right: 1%;
 }
 
+.logo-upload-button {
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    width: 32px;
+    height: 32px;
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.logo-upload-button:hover {
+    background-color: #fff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.logo-upload-button .anticon {
+    color: #666;
+    font-size: 16px;
+}
+
+.project-title-section {
+    display: flex;
+    flex-direction: column;
+}
+
+.project-title-input {
+    font-size: 24px;
+    border: none;
+    padding: 0;
+    margin: 0;
+    background: transparent;
+    text-align: center;
+}
+
+.project-title-input:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+.project-title-underline {
+    width: 100%;
+    height: 1px;
+    background-color: #d9d9d9;
+}
 
 .project-info-section {
     width: 100%;
-    max-width: 600px;
+    max-width: 450px;
     margin-top: 20px;
-    border-top: 1px solid #eee;
     padding-top: 20px;
+    text-align: center;
 }
 
 .project-info-field {
     margin-bottom: 15px;
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.field-label {
+    position: absolute;
+    top: -25px;
+    left: 0;
+    font-size: 11px;
+    color: #afaeae;
+    margin-top: 10px;
+}
+
+.project-info-field:focus-within .field-label {
+    color: white;
+}
+
+.project-info-section input,
+.project-info-section textarea {
+    width: 450px !important;
+    height: 40px;
+    resize: none;
+    background-color: #f5f5f5;
+    transition: background-color 0.3s ease;
+}
+
+.project-info-section textarea {
+    height: auto;
+    min-height: 120px;
+}
+
+.project-info-section input:focus,
+.project-info-section textarea:focus {
+    background-color: white;
+}
+
+.save-button {
+    width: 250px !important;
+    height: 55px !important;
+    background-color: #5C7BBB !important;
+    border-color: #5C7BBB !important;
+    border-radius: 8px !important;
+}
+
+.save-button:hover {
+    background-color: #1ba37e !important;
+    border-color: #1ba37e !important;
+}
+
+.max-height-500 {
+    max-height: 500px;
+    overflow: auto;
+}
+
+.project-settings-logo {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.image-cropper-container {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 16px 0;
+}
+
+.crop-area {
+    display: flex;
+    justify-content: center;
+    background: #f5f5f5;
+    border-radius: 8px;
+    padding: 16px;
+}
+
+.cropper {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.crop-info {
+    text-align: center;
+    color: #666;
+}
+
+.crop-hint {
+    font-size: 12px;
+    color: #999;
+}
+
+.commit-button {
+    background-color: #5C7BBB !important;
 }

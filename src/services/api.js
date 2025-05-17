@@ -42,8 +42,19 @@ export const getProject = async (projectId) => {
 };
 
 
-export const updateProject = async (projectId) => {
-    const response = await api.put(`/projects/${projectId}`);
+export const updateProject = async (projectId, projectData) => {
+    const response = await api.put(`/projects/${projectId}`, projectData);
+    return response.data;
+};
+
+export const uploadProjectLogo = async (projectId, file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    const response = await api.post(`/projects/${projectId}/logo`, formData, {
+        headers: {
+            'Content-Type': 'multipart/form-data'
+        }
+    });
     return response.data;
 };
 
@@ -221,6 +232,15 @@ export const deleteNotification = async (notificationId) => {
 export const getNotificationsWebSocketUrl = () => {
     const token = localStorage.getItem('token');
     return `${WS_URL}/notifications/ws?token=${token}`;
+};
+
+// Вспомогательная функция для работы с изображениями
+export const getImageUrl = (relativePath) => {
+    if (!relativePath) return '';
+    // Если путь уже полный URL, возвращаем как есть
+    if (relativePath.startsWith('http')) return relativePath;
+    // Иначе формируем полный путь
+    return `${API_URL}${relativePath}`;
 };
 
 export default api;
