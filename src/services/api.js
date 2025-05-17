@@ -127,8 +127,7 @@ export const searchUsers = async (query) => {
     const response = await api.get(`/users/search?q=${encodeURIComponent(query)}`, {
         headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
     });
-    if (!response.ok) throw new Error('Failed to search users');
-    return await response.json();
+    return await response.data;
 };
 
 export const approveTask = async (projectId, taskId, isTeacherApproval = false, comment = null) => {

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { getProjectUsers, searchUsers, addUserToProject } from '../../services/api';
 import { Input, Button, Select, message, Spin } from 'antd';
 import '../../styles/ProjectSettings.css';
+import {getDefaultUserRole} from "../../config/project-user-config.js";
 
 const { Option } = Select;
 
@@ -38,7 +39,6 @@ const ProjectUsers = ({ projectId }) => {
         try {
             setLoading(true);
             const results = await searchUsers(value);
-            // Фильтруем, чтобы исключить уже добавленных пользователей
             const filteredResults = results.filter(
                 result => !users.some(user => user.user_id === result.id)
             );
@@ -56,8 +56,9 @@ const ProjectUsers = ({ projectId }) => {
             return;
         }
         try {
+            let role = getDefaultUserRole();
             setLoading(true);
-            const addedUser = await addUserToProject(projectId, selectedUserId);
+            const addedUser = await addUserToProject(projectId, selectedUserId, role);
             setUsers([...users, addedUser]);
             setSearchQuery('');
             setSearchResults([]);

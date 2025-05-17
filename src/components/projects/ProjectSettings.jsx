@@ -8,7 +8,7 @@ import ProjectUsers from './ProjectUsers';
 const ProjectSettings = () => {
     const { projectId } = useParams();
     const navigate = useNavigate();
-    const [activeSection, setActiveSection] = useState('columns'); // По умолчанию открываем "Столбцы"
+    const [activeSection, setActiveSection] = useState('details'); // По умолчанию открываем "Сведения"
 
     const sections = [
         { id: 'details', name: 'Сведения', component: <ProjectDetails projectId={projectId} /> },
