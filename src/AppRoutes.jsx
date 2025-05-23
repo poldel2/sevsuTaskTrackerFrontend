@@ -5,6 +5,7 @@ import ProjectsPage from './components/projects/ProjectsPage';
 import LoginPage from './components/auth/LoginPage.jsx';
 import RegisterPage from './components/auth/RegisterPage.jsx';
 import PrivateRoute from './components/auth/PrivateRoute.jsx';
+import TaskPage from './components/tasks/TaskPage';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { NotificationProvider } from './context/NotificationContext';
 import { WebSocketProvider } from './context/WebSocketContext';
@@ -28,6 +29,11 @@ function AppRoutes() {
                             <Route path="/register" element={<RegisterPage />} />
                             <Route path="/callback" element={<CallbackHandler />} />
                             {/* Защищённые маршруты */}
+                            <Route path="/tasks/:id" element={
+                                <PrivateRoute>
+                                    <TaskPage />
+                                </PrivateRoute>
+                            } />
                             <Route
                                 path="/activities"
                                 element={<PrivateRoute><ActivitiesPage /></PrivateRoute>}

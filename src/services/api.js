@@ -1,13 +1,12 @@
 import axios from 'axios';
 
-export const API_URL = import.meta.env.VITE_API_URL || 'http://api.sevsutasktracker.ru';
-export const WS_URL = import.meta.env.VITE_WS_URL || 'ws://api.sevsutasktracker.ru';
+export const API_URL = import.meta.env.VITE_API_URL || 'http://api.sevsutasktracker.ru:81';
+export const WS_URL = import.meta.env.VITE_WS_URL || 'ws://api.sevsutasktracker.ru:81';
 
 const api = axios.create({
     baseURL: API_URL,
 });
 
-// Интерцептор для добавления токена в заголовки
 api.interceptors.request.use(
     (config) => {
         const token = localStorage.getItem('token');
@@ -32,6 +31,7 @@ api.interceptors.response.use(
 );
 
 export const getProjects = async () => {
+    console.log(API_URL);
     const response = await api.get('/projects');
     return response.data;
 };
@@ -232,6 +232,11 @@ export const deleteNotification = async (notificationId) => {
 export const getNotificationsWebSocketUrl = () => {
     const token = localStorage.getItem('token');
     return `${WS_URL}/notifications/ws?token=${token}`;
+};
+
+export const getUserAvatar = async (userId) => {
+    const response = await api.get(`/users/${userId}/avatar`);
+    return response.data;
 };
 
 // Вспомогательная функция для работы с изображениями
