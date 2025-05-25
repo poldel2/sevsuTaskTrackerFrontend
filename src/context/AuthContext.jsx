@@ -72,8 +72,21 @@ export const AuthProvider = ({ children }) => {
         navigate('/login');
     };
 
+    const updateUser = (userData) => {
+        setUser(userData);
+    };
+
     return (
-        <AuthContext.Provider value={{ user, loading, login, loginLocal, loginSevsu, signup, logout }}>
+        <AuthContext.Provider value={{ 
+            user, 
+            loading, 
+            login, 
+            loginLocal, 
+            loginSevsu, 
+            signup, 
+            logout,
+            updateUser 
+        }}>
             {children}
         </AuthContext.Provider>
     );

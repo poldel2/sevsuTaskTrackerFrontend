@@ -171,6 +171,10 @@ const ProjectDetails = ({ projectId }) => {
                         <ImageCropper
                             file={cropFile}
                             aspect={1}
+                            targetWidth={150}
+                            targetHeight={150}
+                            title="Логотип проекта"
+                            imageLabel="логотипа проекта"
                             onCropComplete={handleCropComplete}
                             onCancel={() => setCropFile(null)}
                         />

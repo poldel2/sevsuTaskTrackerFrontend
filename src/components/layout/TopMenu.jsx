@@ -6,6 +6,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from '../../context/AuthContext.jsx';
 import { useNotifications } from '../../context/NotificationContext';
 import ActivityModal from '../activities/ActivityModal';
+import { getImageUrl } from '../../services/api';
 
 const menuItems = [
     { key: "work", label: "Работа" },
@@ -64,7 +65,7 @@ const TopMenu = () => {
 
     const dropdownMenu = (
         <Menu>
-            <Menu.Item key="profile">Профиль</Menu.Item>
+            <Menu.Item key="profile" onClick={() => navigate('/profile')}>Профиль</Menu.Item>
             <Menu.Item key="settings">Настройки</Menu.Item>
             <Menu.Item key="logout" onClick={logout}>Выйти</Menu.Item>
         </Menu>
@@ -122,8 +123,17 @@ const TopMenu = () => {
                 
                 <Dropdown overlay={dropdownMenu} trigger={["click"]}>
                     <div className="user-avatar">
-                        <UserOutlined />
-                        <span className="username">{user?.email}</span>
+                        {user?.avatar ? (
+                            <img 
+                                src={getImageUrl(user.avatar)} 
+                                alt="Avatar" 
+                                className="header-user-avatar" 
+                            />
+                        ) : (
+                            <div className="header-default-avatar">
+                                <span>{user?.first_name?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase()}</span>
+                            </div>
+                        )}
                     </div>
                 </Dropdown>
             </div>

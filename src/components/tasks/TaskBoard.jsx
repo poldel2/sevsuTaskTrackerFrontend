@@ -389,7 +389,7 @@ const TaskBoard = ({ project }) => {
                                 placeholder="Поиск задач..."
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                className="search-input"
+                                className="search-input-task"
                             />
                             <SearchOutlined className="search-icon" />
                         </div>

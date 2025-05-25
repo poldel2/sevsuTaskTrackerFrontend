@@ -5,7 +5,17 @@ import { Modal, Button, Space } from 'antd';
 import { ScissorOutlined, CloseOutlined } from '@ant-design/icons';
 import { centerAspectCrop, cropImage } from '../../services/imageService';
 
-const ImageCropper = ({ file, aspect = 1, onCropComplete, onCancel }) => {
+const ImageCropper = ({ 
+    file, 
+    aspect = 1,
+    targetWidth = 150,
+    targetHeight = 150,
+    title = "Редактирование изображения",
+    imageLabel = "изображения",
+    sizeHint = true,
+    onCropComplete, 
+    onCancel 
+}) => {
     const [imgSrc, setImgSrc] = useState('');
     const [crop, setCrop] = useState();
     const [isModalOpen, setIsModalOpen] = useState(true);
@@ -29,7 +39,7 @@ const ImageCropper = ({ file, aspect = 1, onCropComplete, onCancel }) => {
         if (!crop || !imgSrc) return;
 
         try {
-            const croppedImage = await cropImage(imgSrc, crop);
+            const croppedImage = await cropImage(imgSrc, crop, targetWidth, targetHeight);
             onCropComplete(croppedImage);
             setIsModalOpen(false);
         } catch (err) {
@@ -47,7 +57,7 @@ const ImageCropper = ({ file, aspect = 1, onCropComplete, onCancel }) => {
             title={
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <ScissorOutlined />
-                    <span>Редактирование изображения</span>
+                    <span>{title}</span>
                 </div>
             }
             open={isModalOpen}
@@ -108,8 +118,12 @@ const ImageCropper = ({ file, aspect = 1, onCropComplete, onCancel }) => {
                             </ReactCrop>
                         </div>
                         <div className="crop-info">
-                            <p>Выберите область для логотипа проекта</p>
-                            <p className="crop-hint">Рекомендуемый размер: 150x150 пикселей</p>
+                            <p>Выберите область для {imageLabel}</p>
+                            {sizeHint && (
+                                <p className="crop-hint">
+                                    Рекомендуемый размер: {targetWidth}x{targetHeight} пикселей
+                                </p>
+                            )}
                         </div>
                     </>
                 )}

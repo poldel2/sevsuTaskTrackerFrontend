@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-export const API_URL = import.meta.env.VITE_API_URL || 'http://api.sevsutasktracker.ru:81';
-export const WS_URL = import.meta.env.VITE_WS_URL || 'ws://api.sevsutasktracker.ru:81';
+export const API_URL = import.meta.env.VITE_API_URL || 'http://api.sevsutasktracker.ru';
+export const WS_URL = import.meta.env.VITE_WS_URL || 'ws://api.sevsutasktracker.ru';
 
 const api = axios.create({
     baseURL: API_URL,
@@ -246,6 +246,22 @@ export const getImageUrl = (relativePath) => {
     if (relativePath.startsWith('http')) return relativePath;
     // Иначе формируем полный путь
     return `${API_URL}${relativePath}`;
+};
+
+export const updateProfile = async (userData) => {
+    const response = await api.put('/users/profile', userData);
+    return response.data;
+};
+
+export const uploadAvatar = async (file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    const response = await api.post('/users/avatar', formData, {
+        headers: {
+            'Content-Type': 'multipart/form-data'
+        }
+    });
+    return response.data;
 };
 
 export default api;

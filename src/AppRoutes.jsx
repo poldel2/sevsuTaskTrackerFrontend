@@ -12,6 +12,7 @@ import { WebSocketProvider } from './context/WebSocketContext';
 import ProjectSettings from "./components/projects/ProjectSettings.jsx";
 import { logout } from "./services/api";
 import ActivitiesPage from "./components/activities/ActivitiesPage.jsx";
+import UserProfile from "./components/user/UserProfile";
 
 function AppRoutes() {
     return (
@@ -49,6 +50,10 @@ function AppRoutes() {
                             <Route
                                 path="/projects/:projectId/activity"
                                 element={<PrivateRoute><ActivitiesPage /></PrivateRoute>}
+                            />
+                            <Route
+                                path="/profile"
+                                element={<PrivateRoute><UserProfile /></PrivateRoute>}
                             />
     
                             {/* Перенаправление для неизвестных путей */}

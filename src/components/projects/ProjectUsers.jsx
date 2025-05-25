@@ -1,18 +1,45 @@
 import React, { useState, useEffect } from 'react';
 import { getProjectUsers, searchUsers, addUserToProject } from '../../services/api';
-import { Input, Button, Select, message, Spin } from 'antd';
+import { Input, Button, Table, message, Spin } from 'antd';
+import { SearchOutlined, PlusOutlined } from '@ant-design/icons';
 import '../../styles/ProjectSettings.css';
 import {getDefaultUserRole} from "../../config/project-user-config.js";
-
-const { Option } = Select;
 
 const ProjectUsers = ({ projectId }) => {
     const [users, setUsers] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [searchResults, setSearchResults] = useState([]);
-    const [selectedUserId, setSelectedUserId] = useState(null);
+    const [selectedUser, setSelectedUser] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+
+    const columns = [
+        {
+            title: 'Имя',
+            dataIndex: 'first_name',
+            key: 'first_name',
+        },
+        {
+            title: 'Фамилия',
+            dataIndex: 'last_name',
+            key: 'last_name',
+        },
+        {
+            title: 'Отчество',
+            dataIndex: 'middle_name',
+            key: 'middle_name',
+        },
+        {
+            title: 'Email',
+            dataIndex: 'email',
+            key: 'email',
+        },
+        {
+            title: 'Роль',
+            dataIndex: 'role',
+            key: 'role',
+        }
+    ];
 
     useEffect(() => {
         fetchProjectUsers();
@@ -34,6 +61,7 @@ const ProjectUsers = ({ projectId }) => {
         setSearchQuery(value);
         if (value.trim().length < 2) {
             setSearchResults([]);
+            setSelectedUser(null);
             return;
         }
         try {
@@ -43,6 +71,9 @@ const ProjectUsers = ({ projectId }) => {
                 result => !users.some(user => user.user_id === result.id)
             );
             setSearchResults(filteredResults);
+            if (filteredResults.length > 0) {
+                setSelectedUser(filteredResults[0]);
+            }
         } catch (err) {
             setError('Ошибка поиска пользователей');
         } finally {
@@ -51,18 +82,16 @@ const ProjectUsers = ({ projectId }) => {
     };
 
     const handleAddUser = async () => {
-        if (!selectedUserId) {
-            setError('Выберите пользователя для добавления');
-            return;
-        }
+        if (!selectedUser) return;
+        
         try {
             let role = getDefaultUserRole();
             setLoading(true);
-            const addedUser = await addUserToProject(projectId, selectedUserId, role);
+            const addedUser = await addUserToProject(projectId, selectedUser.id, role);
             setUsers([...users, addedUser]);
             setSearchQuery('');
             setSearchResults([]);
-            setSelectedUserId(null);
+            setSelectedUser(null);
             setError('');
             message.success('Пользователь успешно добавлен');
         } catch (err) {
@@ -73,58 +102,62 @@ const ProjectUsers = ({ projectId }) => {
     };
 
     if (loading && users.length === 0) {
-        return <Spin tip="Загрузка..." />;
+        return <div className="project-users-loading"><Spin /></div>;
     }
 
     return (
         <div className="project-users">
-            <h2>Пользователи проекта</h2>
-            {error && <p style={{ color: 'red', marginBottom: '10px' }}>{error}</p>}
-            <div className="users-list">
-                {users.length > 0 ? (
-                    <ul style={{ listStyle: 'none', padding: 0 }}>
-                        {users.map(user => (
-                            <li key={user.user_id} className="user-item">
-                                {user.first_name} {user.last_name} ({user.role})
-                            </li>
-                        ))}
-                    </ul>
-                ) : (
-                    <p>Пользователи пока не добавлены</p>
-                )}
-            </div>
-            <div className="add-user-form" style={{ marginTop: '20px' }}>
-                <h3>Добавить пользователя</h3>
-                <Input
-                    placeholder="Введите имя или фамилию"
-                    value={searchQuery}
-                    onChange={(e) => handleSearch(e.target.value)}
-                    style={{ width: '300px', marginBottom: '10px' }}
-                />
-                {searchResults.length > 0 && (
-                    <Select
-                        placeholder="Выберите пользователя"
-                        value={selectedUserId}
-                        onChange={(value) => setSelectedUserId(value)}
-                        style={{ width: '300px', marginBottom: '10px' }}
-                        showSearch={false}
+            <div className="project-users-header">
+                <h3>Пользователи</h3>
+                <div className="search-section">
+                    <div className="search-container">
+                        <Input
+                            placeholder="Поиск пользователя"
+                            value={searchQuery}
+                            onChange={(e) => handleSearch(e.target.value)}
+                            suffix={<SearchOutlined style={{ color: 'rgba(0,0,0,.45)' }} />}
+                            className="search-input"
+                        />
+                        {searchResults.length > 0 && searchQuery && (
+                            <div className="search-results">
+                                {searchResults.map(user => (
+                                    <div
+                                        key={user.id}
+                                        className={`search-result-item ${selectedUser?.id === user.id ? 'selected' : ''}`}
+                                        onClick={() => setSelectedUser(user)}
+                                    >
+                                        <div className="user-info">
+                                            <div className="user-name">
+                                                {user.first_name} {user.last_name}
+                                            </div>
+                                            <div className="user-email">{user.email}</div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                    <Button
+                        type="primary"
+                        icon={<PlusOutlined />}
+                        onClick={handleAddUser}
+                        disabled={!selectedUser}
+                        className="add-user-button"
                     >
-                        {searchResults.map(user => (
-                            <Option key={user.id} value={user.id}>
-                                {user.first_name} {user.last_name} ({user.email})
-                            </Option>
-                        ))}
-                    </Select>
-                )}
-                <Button
-                    type="primary"
-                    onClick={handleAddUser}
-                    disabled={!selectedUserId || loading}
-                    loading={loading}
-                >
-                    Добавить
-                </Button>
+                        Добавить
+                    </Button>
+                </div>
             </div>
+            
+            {error && <div className="error-message">{error}</div>}
+            
+            <Table 
+                columns={columns}
+                dataSource={users}
+                rowKey="user_id"
+                pagination={false}
+                className="users-table"
+            />
         </div>
     );
 };
