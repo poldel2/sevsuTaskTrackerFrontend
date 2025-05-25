@@ -1,0 +1,219 @@
+.task-page {
+    background-color: #f7f7f7;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.top-menu-taskPage {
+    width:100%;
+}
+
+.task-container {
+    width: 70%;
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    min-height: calc(100vh - 40px);
+}
+
+.task-header-section {
+    border-bottom: 1px solid #e8e8e8;
+    padding-bottom: 20px;
+    margin-bottom: 20px;
+}
+
+.task-header-content {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+}
+
+.task-avatar-section {
+    flex-shrink: 0;
+}
+
+.assignee-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 4px;
+    object-fit: cover;
+}
+
+.header-default-avatar {
+    width: 48px;
+    height: 48px;
+    background-color: #5C7BBB;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 20px;
+}
+
+.task-title-section {
+    flex-grow: 1;
+}
+
+.task-title2 {
+    font-size: 24px;
+    margin: 0 0 10px 0;
+}
+
+.task-dates {
+    display: flex;
+    gap: 20px;
+    color: #666;
+    font-size: 14px;
+}
+
+.task-actions2 {
+    display: flex;
+    gap: 10px;
+    margin-left: auto;
+}
+
+.task-actions2 button {
+    height: 36px;
+    padding: 0 15px;
+    border: 1px solid #5C7BBB;
+    color: #5C7BBB;
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.task-actions2 button:hover {
+    background-color: rgba(92, 123, 187, 0.1);
+}
+
+.task-actions2 button.edit-button:hover {
+    background-color: rgba(92, 123, 187, 0.1);
+    color: #5C7BBB;
+}
+
+.task-details-section {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.task-info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+}
+
+.info-item {
+    display: flex;
+    align-items: flex-start;
+    padding: 10px 0;
+}
+
+.info-item label {
+    color: #666;
+    font-size: 14px;
+    width: 40%;
+    text-align: right;
+    position: relative;
+    padding-right: 10%;
+}
+
+.info-item span {
+}
+
+
+.info-item span {
+    font-size: 14px;
+    color: #333;
+}
+
+.status-badge,
+.priority-badge {
+    display: inline-flex;
+    padding: 4px 12px;
+    border-radius: 4px;
+    font-size: 14px;
+    width: fit-content;
+}
+
+.status-todo { background-color: #f0f0f0; }
+.status-in_progress { background-color: #e6f7ff; }
+.status-need_review { background-color: #fff7e6; }
+.status-approved_by_leader { background-color: #f6ffed; }
+.status-approved_by_teacher { background-color: #d9f7be; }
+.status-rejected { background-color: #fff1f0; }
+
+.priority-low { background-color: #f0f0f0; }
+.priority-medium { background-color: #fff7e6; }
+.priority-high { background-color: #fff1f0; }
+
+.task-description-section,
+.related-tasks-section,
+.task-comments-section {
+    padding: 20px 0;
+    border-top: 1px solid #e8e8e8;
+}
+
+.section-title {
+    font-size: 18px;
+    margin-bottom: 15px;
+}
+
+.description-content {
+    color: #333;
+    line-height: 1.6;
+}
+
+.related-tasks-table table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.related-tasks-table th,
+.related-tasks-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #e8e8e8;
+}
+
+.related-tasks-table tr:hover {
+    background-color: #f5f5f5;
+    cursor: pointer;
+}
+
+.comments-list {
+    margin-bottom: 20px;
+}
+
+.comment-input {
+    display: flex;
+    gap: 10px;
+}
+
+.comment-input textarea {
+    flex-grow: 1;
+}
+
+.comment-input button {
+    align-self: flex-end;
+    height: 36px;
+    padding: 0 15px;
+    border: none;
+    background: #5C7BBB;
+    color: white;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.comment-input button:hover {
+    background: #4a69a8;
+}

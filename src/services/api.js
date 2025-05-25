@@ -182,6 +182,9 @@ export const updateTaskStatus = async (taskId, projectId, updateData) => {
 };
 
 export const fetchTaskDetails = async (taskId, projectId) => {
+    if (!taskId || !projectId || isNaN(taskId) || isNaN(projectId)) {
+        throw new Error('Invalid task or project ID');
+    }
     const response = await api.get(`/projects/${projectId}/tasks/${taskId}`);
     return response.data;
 };
@@ -234,11 +237,6 @@ export const getNotificationsWebSocketUrl = () => {
     return `${WS_URL}/notifications/ws?token=${token}`;
 };
 
-export const getUserAvatar = async (userId) => {
-    const response = await api.get(`/users/${userId}/avatar`);
-    return response.data;
-};
-
 // Вспомогательная функция для работы с изображениями
 export const getImageUrl = (relativePath) => {
     if (!relativePath) return '';
@@ -261,6 +259,11 @@ export const uploadAvatar = async (file) => {
             'Content-Type': 'multipart/form-data'
         }
     });
+    return response.data;
+};
+
+export const getUser = async (userId) => {
+    const response = await api.get(`/users/${userId}`);
     return response.data;
 };
 

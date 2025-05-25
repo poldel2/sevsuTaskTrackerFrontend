@@ -30,7 +30,7 @@ function AppRoutes() {
                             <Route path="/register" element={<RegisterPage />} />
                             <Route path="/callback" element={<CallbackHandler />} />
                             {/* Защищённые маршруты */}
-                            <Route path="/tasks/:id" element={
+                            <Route path="/projects/:projectId/tasks/:id" element={
                                 <PrivateRoute>
                                     <TaskPage />
                                 </PrivateRoute>
