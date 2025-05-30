@@ -1,77 +1,128 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button, Input, message, Card, Spin, Row, Col, Typography, Badge, Tag, Space, Empty } from "antd";
-import { PlusOutlined, SearchOutlined, CalendarOutlined, TeamOutlined } from "@ant-design/icons";
+import { Button, Input, message, Typography, Spin, Empty, Modal, Form, Space } from "antd";
+import { PlusOutlined, SearchOutlined, TeamOutlined, RightOutlined, ArrowRightOutlined, EditOutlined } from "@ant-design/icons";
 import TopMenu from "../layout/TopMenu";
-import { getProjects } from "../../services/api";
+import { getProjects, getProjectUsers, addProject, uploadProjectLogo } from "../../services/api";
+import ImageCropper from '../common/ImageCropper';
 import "../../styles/ProjectsPage.css";
 
-const { Title, Text } = Typography;
+const { Title } = Typography;
 
 const ProjectsPage = () => {
     const [projects, setProjects] = useState([]);
+    const [projectMembers, setProjectMembers] = useState({});
     const [searchQuery, setSearchQuery] = useState("");
     const [loading, setLoading] = useState(true);
+    const [expandedProjectId, setExpandedProjectId] = useState(null);
+    const [isModalVisible, setIsModalVisible] = useState(false);
+    const [form] = Form.useForm();
     const navigate = useNavigate();
+    const [cropFile, setCropFile] = useState(null);
 
     useEffect(() => {
-        setLoading(true);
-        getProjects()
-            .then((data) => {
-                setProjects(data);
-                setLoading(false);
-            })
-            .catch((error) => {
-                console.error("Ошибка загрузки проектов", error);
-                message.error("Ошибка загрузки проектов");
-                setLoading(false);
-            });
+        loadProjects();
     }, []);
 
-    const filteredProjects = projects.filter((project) =>
-        project.title.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    const loadProjects = async () => {
+        try {
+            setLoading(true);
+            const projectsData = await getProjects();
+            setProjects(projectsData);
 
-    const handleProjectClick = (project) => {
-        // Сделаем полную копию проекта, чтобы избежать проблем с передачей референса
-        const projectToPass = {
-            ...project,
-            // Убеждаемся, что все поля определены
-            id: project.id,
-            title: project.title || "",
-            description: project.description || "",
-            start_date: project.start_date,
-            end_date: project.end_date
-        };
+            // Загружаем количество участников для каждого проекта
+            const membersPromises = projectsData.map(project => 
+                getProjectUsers(project.id)
+                    .then(users => ({ [project.id]: users.length }))
+                    .catch(() => ({ [project.id]: 0 }))
+            );
 
-        // Переходим на /core, передавая выбранный проект через state
+            const membersResults = await Promise.all(membersPromises);
+            const membersData = Object.assign({}, ...membersResults);
+            setProjectMembers(membersData);
+        } catch (error) {
+            message.error("Ошибка загрузки проектов");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleProjectClick = (projectId) => {
+        if (expandedProjectId === projectId) {
+            setExpandedProjectId(null);
+        } else {
+            setExpandedProjectId(projectId);
+        }
+    };
+
+    const handleProjectNavigate = (project) => {
         navigate("/core", { 
             state: { 
-                selectedProject: projectToPass,
-                timestamp: new Date().getTime() // Добавляем timestamp для уникальности state
+                selectedProject: project,
+                timestamp: new Date().getTime()
             } 
         });
     };
 
-    const getStatusColor = (date) => {
-        if (!date) return "default";
-        const endDate = new Date(date);
-        const now = new Date();
-        if (endDate < now) return "error";
-        const oneWeekLater = new Date();
-        oneWeekLater.setDate(now.getDate() + 7);
-        if (endDate < oneWeekLater) return "warning";
-        return "success";
+    const handleLogoUpload = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        setCropFile(file);
     };
+
+    const handleCropComplete = async (croppedBlob, projectId) => {
+        try {
+            const file = new File([croppedBlob], 'logo.jpg', { type: 'image/jpeg' });
+            await uploadProjectLogo(projectId, file);
+            message.success('Логотип проекта успешно добавлен');
+        } catch (error) {
+            message.error('Не удалось загрузить логотип');
+        } finally {
+            setCropFile(null);
+        }
+    };
+
+    const handleAddProject = async () => {
+        try {
+            const values = await form.validateFields();
+            const newProject = {
+                title: values.name,
+                description: values.description,
+                start_date: new Date().toISOString(),
+                end_date: new Date().toISOString(),
+            };
+            
+            const addedProject = await addProject(newProject);
+            
+            // Сначала добавляем логотип, если он есть
+            if (cropFile) {
+                const file = new File([cropFile], 'logo.jpg', { type: 'image/jpeg' });
+                await uploadProjectLogo(addedProject.id, file);
+            }
+
+            message.success("Проект добавлен");
+            setIsModalVisible(false);
+            form.resetFields();
+            setCropFile(null);
+            await loadProjects();
+            handleProjectNavigate(addedProject);
+        } catch (error) {
+            console.error(error);
+            message.error("Ошибка при добавлении проекта");
+        }
+    };
+
+    const filteredProjects = projects.filter(project =>
+        project.title.toLowerCase().includes(searchQuery.toLowerCase())
+    );
 
     if (loading) {
         return (
-            <div className="projects-page">
+            <div className="projects-page-v2">
                 <TopMenu />
-                <div className="projects-content">
-                    <div className="projects-loading">
+                <div className="projects-content-v2">
+                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '50vh' }}>
                         <Spin size="large" />
-                        <Text>Загрузка проектов...</Text>
                     </div>
                 </div>
             </div>
@@ -79,91 +130,133 @@ const ProjectsPage = () => {
     }
 
     return (
-        <div className="projects-page">
+        <div className="projects-page-v2">
             <TopMenu />
-            <div className="projects-content">
-                <div className="projects-header">
-                    <Title level={2}>Проекты</Title>
+            <div className="projects-content-v2">
+                <div className="projects-header-v2">
+                    <Title className="projects-title-v2" level={2}>Проекты</Title>
                     <Button 
                         type="primary" 
                         icon={<PlusOutlined />} 
-                        className="create-project-btn"
-                        size="large"
+                        className="create-project-btn-v2"
+                        onClick={() => setIsModalVisible(true)}
                     >
                         Создать проект
                     </Button>
                 </div>
-                <div className="projects-controls">
+                
+                <div className="projects-controls-v2">
                     <Input
                         placeholder="Поиск проектов..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         prefix={<SearchOutlined />}
-                        className="projects-search"
-                        size="large"
+                        className="projects-search-v2"
                     />
                 </div>
-                
+
                 {filteredProjects.length === 0 ? (
-                    <Empty 
-                        description="Проекты не найдены" 
-                        className="projects-empty"
-                        image={Empty.PRESENTED_IMAGE_SIMPLE} 
-                    />
+                    <Empty description="Проекты не найдены" />
                 ) : (
-                    <Row gutter={[24, 24]} className="projects-grid">
+                    <div className="project-list-v2">
                         {filteredProjects.map((project) => (
-                            <Col xs={24} sm={12} lg={8} xl={6} key={project.id}>
-                                <Card 
-                                    className="project-card" 
-                                    hoverable
-                                    onClick={() => handleProjectClick(project)}
+                            <div key={project.id} className="project-item-v2">
+                                <div 
+                                    className="project-header-v2"
+                                    onClick={() => handleProjectClick(project.id)}
                                 >
-                                    <div className="project-card-content">
-                                        <div className="project-card-header">
-                                            <Title level={4} ellipsis={{rows: 1}} className="project-title">
-                                                {project.title}
-                                            </Title>
-                                            <Badge 
-                                                status={getStatusColor(project.end_date)} 
-                                                text={getStatusColor(project.end_date) === "success" ? "Активный" : 
-                                                      getStatusColor(project.end_date) === "warning" ? "Скоро завершение" : 
-                                                      "Просрочен"} 
-                                            />
+                                    <div className="project-main-info-v2">
+                                        <h3 className="project-title-v2">{project.title}</h3>
+                                        <div className="project-members-v2">
+                                            <TeamOutlined />
+                                            <span>{projectMembers[project.id] || 0} участников</span>
                                         </div>
-                                        <div className="project-description">
-                                            <Text type="secondary" ellipsis={{rows: 2}}>
-                                                {project.description || "Нет описания"}
-                                            </Text>
-                                        </div>
-                                        <Space direction="vertical" className="project-meta">
-                                            <div className="project-meta-item">
-                                                <CalendarOutlined /> 
-                                                <Text type="secondary">
-                                                    Создан: {new Date(project.start_date).toLocaleDateString()}
-                                                </Text>
-                                            </div>
-                                            {project.end_date && (
-                                                <div className="project-meta-item">
-                                                    {/* <ClockOutlined />  */}
-                                                    <Text type="secondary">
-                                                        Срок: {new Date(project.end_date).toLocaleDateString()}
-                                                    </Text>
-                                                </div>
-                                            )}
-                                            <div className="project-tags">
-                                                <Tag color="blue">
-                                                    <TeamOutlined /> {project.user_count || 0} участников
-                                                </Tag>
-                                            </div>
-                                        </Space>
                                     </div>
-                                </Card>
-                            </Col>
+                                    <RightOutlined 
+                                        className={`project-arrow-v2 ${expandedProjectId === project.id ? 'expanded' : ''}`}
+                                    />
+                                </div>
+                                {expandedProjectId === project.id && (
+                                    <div className="project-description-v2">
+                                        <p>{project.description || "Описание отсутствует"}</p>
+                                        <div style={{ 
+                                            display: 'flex', 
+                                            justifyContent: 'flex-end',
+                                            marginTop: '10px'
+                                        }}>
+                                            <Button 
+                                                type="primary"
+                                                icon={<ArrowRightOutlined />}
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    handleProjectNavigate(project);
+                                                }}
+                                            >
+                                                Перейти в проект
+                                            </Button>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
                         ))}
-                    </Row>
+                    </div>
                 )}
             </div>
+
+            <Modal
+                title="Создать проект"
+                open={isModalVisible}
+                onOk={handleAddProject}
+                onCancel={() => {
+                    setIsModalVisible(false);
+                    form.resetFields();
+                    setCropFile(null);
+                }}
+            >
+                <Form form={form} layout="vertical">
+                    <Form.Item
+                        label="Название проекта"
+                        name="name"
+                        rules={[{ required: true, message: "Введите название проекта" }]}
+                    >
+                        <Input placeholder="Введите название" />
+                    </Form.Item>
+                    <Form.Item
+                        label="Описание"
+                        name="description"
+                        rules={[{ required: true, message: "Введите описание проекта" }]}
+                    >
+                        <Input.TextArea placeholder="Введите описание" rows={4} />
+                    </Form.Item>
+                    <Form.Item label="Логотип проекта">
+                        <Button icon={<EditOutlined />} onClick={() => document.getElementById('project-logo-upload').click()}>
+                            Выбрать логотип
+                        </Button>
+                        <input
+                            id="project-logo-upload"
+                            type="file"
+                            accept="image/*"
+                            onChange={handleLogoUpload}
+                            style={{ display: 'none' }}
+                        />
+                    </Form.Item>
+                </Form>
+            </Modal>
+
+            {cropFile && (
+                <ImageCropper
+                    file={cropFile}
+                    aspect={1}
+                    targetWidth={150}
+                    targetHeight={150}
+                    title="Логотип проекта"
+                    imageLabel="логотипа проекта"
+                    onCropComplete={(blob) => {
+                        setCropFile(blob);
+                    }}
+                    onCancel={() => setCropFile(null)}
+                />
+            )}
         </div>
     );
 };

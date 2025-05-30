@@ -1,55 +1,132 @@
-.projects-page {
+.projects-page-v2 {
     width: 100%;
-    height: 100vh;
+    min-height: 100vh;
     background-color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
-.projects-header {
+.projects-content-v2 {
+    width: 90%;
+    padding: 20px;
+}
+
+.projects-header-v2 {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 20px;
-    border-bottom: 1px solid #e0e0e0;
+    margin-bottom: 30px;
 }
 
-.create-project-btn {
-    background-color: #1890ff;
-    border: none;
+.projects-title-v2 {
+    color: #5C7BBB;
+    font-size: 28px;
+    font-weight: 600;
 }
 
-.projects-controls {
-    display: flex;
-    gap: 10px;
-    padding: 20px;
-    align-items: center;
+.create-project-btn-v2 {
+    background-color: #5C7BBB !important;
+    border-color: #5C7BBB !important;
+    height: 40px !important;
+    padding: 0 25px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    border-radius: 6px !important;
+    transition: all 0.3s ease !important;
 }
 
-.projects-search {
+.create-project-btn-v2:hover {
+    background-color: #4a69a8 !important;
+    border-color: #4a69a8 !important;
+}
+
+.projects-controls-v2 {
+    margin-bottom: 30px;
+}
+
+.projects-search-v2 {
     width: 300px;
 }
 
-.filter-project-btn {
-    /* Можно задать дополнительные стили для кнопки фильтра, если нужно */
+.projects-search-v2 .ant-input-affix-wrapper {
+    border-color: #5C7BBB !important;
 }
 
-.projects-table {
+.projects-search-v2 .ant-input-affix-wrapper:hover {
+    border-color: #4a69a8 !important;
+}
+
+.project-list-v2 {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.project-item-v2 {
+    background: white;
+    border: 1px solid #e8e8e8;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.project-item-v2:hover {
+    border-color: #5C7BBB;
+    box-shadow: 0 2px 8px rgba(92, 123, 187, 0.1);
+}
+
+.project-header-v2 {
     padding: 20px;
-    overflow-y: auto;
-}
-
-.projects-table table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-.projects-table th,
-.projects-table td {
-    padding: 10px;
-    border: 1px solid #ddd;
-    text-align: left;
-}
-
-.projects-table tr:hover {
-    background-color: #f5f5f5;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     cursor: pointer;
+}
+
+.project-main-info-v2 {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.project-title-v2 {
+    font-size: 18px;
+    font-weight: 500;
+    color: #333;
+    margin: 0;
+}
+
+.project-members-v2 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #666;
+}
+
+.project-arrow-v2 {
+    color: #5C7BBB;
+    transition: transform 0.3s ease;
+}
+
+.project-arrow-v2.expanded {
+    transform: rotate(90deg);
+}
+
+.project-description-v2 {
+    padding: 0 20px 20px;
+    color: #666;
+    font-size: 14px;
+    line-height: 1.6;
+    cursor: pointer;
+}
+
+.project-description-v2 .ant-btn-primary {
+    background-color: #5C7BBB !important;
+    border-color: #5C7BBB !important;
+}
+
+.project-description-v2 .ant-btn-primary:hover {
+    background-color: #4a69a8 !important;
+    border-color: #4a69a8 !important;
 }
