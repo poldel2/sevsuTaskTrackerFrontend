@@ -1,0 +1,262 @@
+.grading-page {
+    width: 100%;
+    min-height: 100vh;
+    background-color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.grading-content {
+    width: 90%;
+    padding: 20px;
+}
+
+.grading-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.grading-title {
+    color: #5C7BBB;
+    font-size: 28px;
+    font-weight: 600;
+}
+
+.user-select-section {
+    width: 300px;
+    margin-bottom: 30px;
+}
+
+.user-select-container {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.projects-list-grading {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.project-item-grading {
+    background: white;
+    border: 1px solid #e8e8e8;
+    border-radius: 8px;
+    padding: 20px;
+    transition: all 0.3s ease;
+}
+
+.project-item-grading:hover {
+    border-color: #5C7BBB;
+    box-shadow: 0 2px 8px rgba(92, 123, 187, 0.1);
+}
+
+.project-header-grading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.project-info-grading {
+    flex: 1;
+}
+
+.project-title-grading {
+    font-size: 18px;
+    font-weight: 500;
+    color: #333;
+    margin: 0;
+}
+
+.project-settings-grading {
+    cursor: pointer;
+    color: #5C7BBB;
+}
+
+.project-arrow-grading {
+    margin-right: 10px;
+    transition: transform 0.3s;
+}
+
+.project-arrow-grading.expanded {
+    transform: rotate(90deg);
+}
+
+.project-content-grading {
+    padding: 20px;
+}
+
+.task-stats-modal .ant-modal-content {
+    border-radius: 8px;
+}
+
+.task-stats-content {
+    padding: 20px 0;
+}
+
+.task-type-stat {
+    margin-bottom: 15px;
+    padding: 10px;
+    border-radius: 6px;
+    background-color: #f8f9fa;
+}
+
+.task-type-stat h4 {
+    color: #5C7BBB;
+    margin-bottom: 8px;
+}
+
+.templates-select {
+    margin-bottom: 20px;
+}
+
+.tasks-list-section {
+    margin-top: 20px;
+}
+
+.tasks-table {
+    width: 100%;
+}
+
+.task-stats-summary {
+    margin-bottom: 20px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 6px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+}
+
+.current-settings {
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 6px;
+    margin-top: 20px;
+}
+
+.current-settings h4 {
+    color: #5C7BBB;
+    margin-bottom: 10px;
+}
+
+.project-settings-grading:hover {
+    color: #4a69a8;
+}
+
+.total-score {
+    font-size: 24px;
+    font-weight: 600;
+    padding: 10px 20px;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.9);
+}
+
+.total-score-badge {
+    padding: 8px 16px;
+    border-radius: 6px;
+    background: #f8f9fa;
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.norm-status {
+    margin-left: 15px;
+    padding: 4px 12px;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.norm-status.completed {
+    background-color: #f6ffed;
+    border: 1px solid #b7eb8f;
+    color: #52c41a;
+}
+
+.norm-status.not-completed {
+    background-color: #fff2f0;
+    border: 1px solid #ffccc7;
+    color: #ff4d4f;
+}
+
+.custom-settings {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 6px;
+    margin-top: 20px;
+}
+
+.settings-inputs {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 10px;
+}
+
+.setting-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+}
+
+.setting-item label {
+    flex: 1;
+    color: #666;
+}
+
+.grading-settings-modal {
+    .ant-modal-content {
+        border-radius: 8px;
+    }
+
+    .ant-modal-header {
+        border-radius: 8px 8px 0 0;
+        background: white;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .ant-modal-footer {
+        border-top: 1px solid #f0f0f0;
+        padding: 15px 20px;
+    }
+}
+
+.user-info-card {
+    background: white;
+    border: 1px solid #e8e8e8;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 15px;
+}
+
+.user-icon {
+    font-size: 24px;
+    color: #5C7BBB;
+}
+
+.user-details {
+    flex: 1;
+}
+
+.user-details h3 {
+    margin: 0;
+    color: #333;
+    font-size: 18px;
+}
+
+.user-details p {
+    margin: 5px 0 0;
+    color: #666;
+}

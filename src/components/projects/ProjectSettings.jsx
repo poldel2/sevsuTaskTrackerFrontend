@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { ArrowLeftOutlined } from '@ant-design/icons';
 import '../../styles/ProjectSettings.css';
 import ColumnSettings from '../common/ColumnSettings';
 import ProjectDetails from './ProjectDetails';
@@ -8,7 +9,7 @@ import ProjectUsers from './ProjectUsers';
 const ProjectSettings = () => {
     const { projectId } = useParams();
     const navigate = useNavigate();
-    const [activeSection, setActiveSection] = useState('details'); // По умолчанию открываем "Сведения"
+    const [activeSection, setActiveSection] = useState('details');
 
     const sections = [
         { id: 'details', name: 'Сведения', component: <ProjectDetails projectId={projectId} /> },
@@ -23,6 +24,30 @@ const ProjectSettings = () => {
 
     return (
         <div className="project-settings">
+            <button 
+                onClick={() => navigate('/projects')} 
+                className="back-arrow-button"
+                style={{
+                    position: 'absolute',
+                    left: '20px',
+                    top: '20px',
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    fontSize: '20px',
+                    color: '#5C7BBB',
+                    display: 'flex',
+                    alignItems: 'center',
+                    padding: '8px',
+                    borderRadius: '50%',
+                    transition: 'background-color 0.3s',
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f0f2f5'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+            >
+                <ArrowLeftOutlined />
+            </button>
+
             <div className="settings-sidebar">
                 <h3>Настройки проекта</h3>
                 <ul>
@@ -36,9 +61,6 @@ const ProjectSettings = () => {
                         </li>
                     ))}
                 </ul>
-                <button onClick={() => navigate('/projects')} className="back-button">
-                    Назад к проектам
-                </button>
             </div>
             <div className="settings-content">
                 {renderContent()}

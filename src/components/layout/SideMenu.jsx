@@ -1,16 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { Button, Collapse, Modal, Form, Input, message } from "antd";
-import { PlusOutlined, RightOutlined, LeftOutlined, MenuOutlined, ProjectOutlined, PlusCircleOutlined, HomeOutlined, CaretRightOutlined } from "@ant-design/icons";
+import { Button, Collapse, message } from "antd";
+import { PlusOutlined, RightOutlined, LeftOutlined } from "@ant-design/icons";
 import "../../styles/sideMenu.css";
-import { addProject, getProjects } from "../../services/api.js";
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { getProjects } from "../../services/api.js";
+import ProjectsModal from "../projects/ProjectsModal";
 
 const { Panel } = Collapse;
 
 const SideMenu = ({ selectedProject, onSelectProject }) => {
     const [isCollapsed, setIsCollapsed] = useState(false);
     const [isModalVisible, setIsModalVisible] = useState(false);
-    const [form] = Form.useForm();
     const [projects, setProjects] = useState([]);
 
     useEffect(() => {
@@ -26,28 +25,10 @@ const SideMenu = ({ selectedProject, onSelectProject }) => {
         }
     };
 
-    const handleAddProject = () => {
-        form.validateFields()
-            .then(async (values) => {
-                const newProject = {
-                    title: values.name,
-                    description: values.description,
-                    start_date: new Date().toISOString(),
-                    end_date: new Date().toISOString(),
-
-                };
-                const addedProject = await addProject(newProject); // Получаем новый проект с ID
-                message.success("Проект добавлен");
-                fetchProjects();
-                setIsModalVisible(false);
-                form.resetFields();
-                fetchProjects().then(() => {
-                    onSelectProject(addedProject.id); // Устанавливаем новый проект как выбранный
-                });
-            })
-            .catch(() => message.error("Ошибка при добавлении проекта"));
+    const handleProjectSuccess = async (newProject) => {
+        await fetchProjects();
+        onSelectProject(newProject.id);
     };
-
 
     return (
         <aside className={`side-menu ${isCollapsed ? "collapsed" : ""}`}>
@@ -94,7 +75,7 @@ const SideMenu = ({ selectedProject, onSelectProject }) => {
                         <Panel header="Все проекты" key="all">
                             <div className="project-list">
                                 {projects.length > 0 ? (
-                                    projects.map((project) => (
+                                    projects.slice(0, 5).map((project) => (
                                         <div
                                             key={project.id}
                                             className={`project-item ${selectedProject === project.id ? "selected" : ""}`}
@@ -113,30 +94,11 @@ const SideMenu = ({ selectedProject, onSelectProject }) => {
             )}
             <div className="side-menu-border" />
 
-            {/* Модальное окно добавления проекта */}
-            <Modal
-                title="Добавить проект"
-                open={isModalVisible}
-                onOk={handleAddProject}
-                onCancel={() => setIsModalVisible(false)}
-            >
-                <Form form={form} layout="vertical">
-                    <Form.Item
-                        label="Название проекта"
-                        name="name"
-                        rules={[{ required: true, message: "Введите название проекта" }]}
-                    >
-                        <Input placeholder="Введите название" />
-                    </Form.Item>
-                    <Form.Item
-                        label="Описание"
-                        name="description"
-                        rules={[{ required: true, message: "Введите описание проекта" }]}
-                    >
-                        <Input.TextArea placeholder="Введите описание" rows={4} />
-                    </Form.Item>
-                </Form>
-            </Modal>
+            <ProjectsModal
+                isVisible={isModalVisible}
+                onClose={() => setIsModalVisible(false)}
+                onSuccess={handleProjectSuccess}
+            />
         </aside>
     );
 };

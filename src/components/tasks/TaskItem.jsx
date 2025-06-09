@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { EditOutlined, RightOutlined } from "@ant-design/icons";
-import { useNavigate } from "react-router-dom";
 import TaskModal from "./TaskModal";
 import '../../styles/TaskItem.css';
 // Глобальное состояние для отслеживания модального окна
@@ -38,7 +37,6 @@ const priorityOptions = [
 ];
 
 const TaskItem = ({ task, activeTaskId, handleTaskUpdate }) => {
-    const navigate = useNavigate();
     const [isModalVisible, setIsModalVisible] = useState(false);
     const cleanupRef = useRef(null);
 
@@ -147,9 +145,7 @@ const TaskItem = ({ task, activeTaskId, handleTaskUpdate }) => {
                     className="task-add-section-wrapper"
                     onClick={(e) => {
                         e.stopPropagation();
-                        if (task.id) {
-                            navigate(`/projects/${task.project_id}/tasks/${task.id}`);
-                        }
+                        handleOpenModal(e);
                     }}
                 >
                     <button 
@@ -157,9 +153,7 @@ const TaskItem = ({ task, activeTaskId, handleTaskUpdate }) => {
                         type="button"
                         onClick={(e) => {
                             e.stopPropagation();
-                            if (task.id) {
-                                navigate(`/projects/${task.project_id}/tasks/${task.id}`);
-                            }
+                            handleOpenModal(e);
                         }}
                     >
                         <span>Дополнительные параметры</span>

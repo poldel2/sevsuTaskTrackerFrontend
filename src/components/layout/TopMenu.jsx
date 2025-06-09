@@ -1,6 +1,6 @@
 import "../../styles/topMenu.css";
 import React, { useState } from "react";
-import { BellOutlined, UserOutlined, TeamOutlined, HistoryOutlined } from "@ant-design/icons";
+import { BellOutlined, UserOutlined, TeamOutlined, HistoryOutlined, ProjectOutlined, AuditOutlined } from "@ant-design/icons";
 import { Dropdown, Menu, Badge, Space } from "antd";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from '../../context/AuthContext.jsx';
@@ -8,12 +8,6 @@ import { useNotifications } from '../../context/NotificationContext';
 import ActivityModal from '../activities/ActivityModal';
 import { getImageUrl } from '../../services/api';
 
-const menuItems = [
-    { key: "work", label: "Работа" },
-    { key: "projects", label: "Проекты" },
-    { key: "teams", label: "Команды", isDropdown: true },
-    { key: "plans", label: "Планы" },
-];
 
 const TopMenu = () => {
     const { user, logout } = useAuth();
@@ -22,6 +16,13 @@ const TopMenu = () => {
     const { projectId } = useParams();
     const [activityModalVisible, setActivityModalVisible] = useState(false);
     const [notificationMenuVisible, setNotificationMenuVisible] = useState(false);
+
+    const menuItems = [
+        { key: 'projects', label: 'Проекты', icon: <ProjectOutlined />, link: '/projects' },
+        { key: 'notifications', label: 'Уведомления', icon: <BellOutlined />, link: '/notifications' },
+        user?.role === 'teacher' ? { key: 'grading', label: 'Оценка', icon: <AuditOutlined />, link: '/grading' } : null,
+    ].filter(Boolean);
+    
 
     const handleTeamsClick = () => {
         if (!user) {

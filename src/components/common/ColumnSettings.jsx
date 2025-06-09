@@ -4,10 +4,11 @@ import { SortableContext, arrayMove, verticalListSortingStrategy } from '@dnd-ki
 import { getColumns, createColumn, updateColumn } from '../../services/api';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Modal, Input } from 'antd';
+import { Modal, Input, Button } from 'antd';
+import { ArrowUpOutlined, ArrowDownOutlined, PlusOutlined } from '@ant-design/icons';
 
 const SortableColumnItem = ({ column, handlePositionChange }) => {
-    const { id, name, position, color } = column;
+    const { id, name, position } = column;
     const {
         attributes,
         listeners,
@@ -21,17 +22,41 @@ const SortableColumnItem = ({ column, handlePositionChange }) => {
         transition,
         display: 'flex',
         alignItems: 'center',
-        marginBottom: '10px',
-        padding: '5px',
-        backgroundColor: color || '#f9f9f9',
-        border: '1px solid #ddd'
+        marginBottom: '12px',
+        padding: '12px 16px',
+        border: '1px solid #5C7BBB',
+        borderRadius: '8px',
+        background: 'white'
     };
 
     return (
         <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
-            <span style={{ flex: 1 }}>{name} (Position: {position})</span>
-            <button onClick={() => handlePositionChange(id, 'up')} style={{ marginRight: '10px' }}>↑</button>
-            <button onClick={() => handlePositionChange(id, 'down')}>↓</button>
+            <span style={{ 
+                minWidth: '30px',
+                color: '#5C7BBB',
+                fontWeight: '500'
+            }}>
+                {position + 1}
+            </span>
+            <span style={{ flex: 1 }}>{name}</span>
+            <div style={{ display: 'flex', gap: '8px' }}>
+                <Button 
+                    type="text"
+                    icon={<ArrowUpOutlined />} 
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        handlePositionChange(id, 'up');
+                    }}
+                />
+                <Button 
+                    type="text"
+                    icon={<ArrowDownOutlined />} 
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        handlePositionChange(id, 'down');
+                    }}
+                />
+            </div>
         </div>
     );
 };
@@ -89,18 +114,31 @@ const ColumnSettings = ({ projectId }) => {
 
         const newColumns = [...columns];
         const targetIndex = direction === 'up' ? columnIndex - 1 : columnIndex + 1;
+        
+        // Обмениваем столбцы местами
         [newColumns[columnIndex], newColumns[targetIndex]] = [newColumns[targetIndex], newColumns[columnIndex]];
+        
+        // Обновляем позиции для всех столбцов
+        newColumns.forEach((col, idx) => {
+            col.position = idx;
+        });
 
         try {
-            await Promise.all(newColumns.map((col, idx) =>
-                updateColumn(projectId, col.id, { name: col.name, position: idx, color: col.color })
+            // Сохраняем новые позиции в базе данных
+            await Promise.all(newColumns.map(col =>
+                updateColumn(projectId, col.id, { 
+                    name: col.name, 
+                    position: col.position, 
+                    color: col.color 
+                })
             ));
+            
             setColumns(newColumns);
-            setSuccess('Column position updated');
+            setSuccess('Позиция столбца обновлена');
             setTimeout(() => setSuccess(''), 2000);
         } catch (err) {
-            setError(err.detail || 'Failed to update column position');
-            fetchColumns();
+            setError(err.detail || 'Не удалось обновить позицию столбца');
+            await fetchColumns(); // Перезагружаем столбцы в случае ошибки
         }
     };
 
@@ -141,49 +179,66 @@ const ColumnSettings = ({ projectId }) => {
                     </div>
                 </SortableContext>
             </DndContext>
-            <div className="add-column" style={{ marginTop: '20px' }}>
-                <button onClick={() => setIsModalVisible(true)}>Add Column</button>
-            </div>
-            {error && <p style={{ color: 'red' }}>{error}</p>}
-            {success && <p style={{ color: 'green' }}>{success}</p>}
+            
+            <Button
+                type="primary"
+                icon={<PlusOutlined />}
+                onClick={() => setIsModalVisible(true)}
+                style={{ 
+                    marginTop: '20px',
+                    background: '#5C7BBB',
+                    borderColor: '#5C7BBB'
+                }}
+            >
+                Добавить столбец
+            </Button>
+
+            {error && <p style={{ color: 'red', marginTop: '10px' }}>{error}</p>}
+            {success && <p style={{ color: 'green', marginTop: '10px' }}>{success}</p>}
 
             <Modal
-                title="Add New Column"
-                visible={isModalVisible}
+                title="Новый столбец"
+                open={isModalVisible}
                 onOk={handleAddColumn}
                 onCancel={() => {
                     setIsModalVisible(false);
                     setNewColumn({ name: '', position: columns.length, color: '#808080' });
                     setError('');
                 }}
-                okText="Create"
-                cancelText="Cancel"
+                okText="Создать"
+                cancelText="Отмена"
             >
-                <div style={{ marginBottom: '10px' }}>
-                    <label>Name:</label>
+                <div style={{ marginBottom: '16px' }}>
+                    <label style={{ display: 'block', marginBottom: '8px' }}>Название столбца:</label>
                     <Input
                         value={newColumn.name}
                         onChange={(e) => setNewColumn({ ...newColumn, name: e.target.value })}
-                        placeholder="Column name"
+                        placeholder="Введите название столбца"
                     />
                 </div>
-                <div style={{ marginBottom: '10px' }}>
-                    <label>Position:</label>
+                <div style={{ marginBottom: '16px' }}>
+                    <label style={{ display: 'block', marginBottom: '8px' }}>Позиция:</label>
                     <Input
                         type="number"
                         value={newColumn.position}
                         onChange={(e) => setNewColumn({ ...newColumn, position: parseInt(e.target.value) || 0 })}
                         min={0}
-                        placeholder="Position"
+                        placeholder="Укажите позицию"
                     />
                 </div>
                 <div>
-                    <label>Color:</label>
+                    <label style={{ display: 'block', marginBottom: '8px' }}>Цвет столбца:</label>
                     <input
                         type="color"
                         value={newColumn.color}
                         onChange={(e) => setNewColumn({ ...newColumn, color: e.target.value })}
-                        style={{ width: '100%', height: '40px', marginTop: '5px' }}
+                        style={{ 
+                            width: '100%', 
+                            height: '40px', 
+                            padding: '0',
+                            border: '1px solid #d9d9d9',
+                            borderRadius: '6px'
+                        }}
                     />
                 </div>
             </Modal>

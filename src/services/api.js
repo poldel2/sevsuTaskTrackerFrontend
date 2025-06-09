@@ -267,4 +267,30 @@ export const getUser = async (userId) => {
     return response.data;
 };
 
+// API для оценки пользователей
+export const getUserProjectsForGrading = async (userId) => {
+    const response = await api.get(`/users/${userId}/projects`);
+    return response.data;
+};
+
+export const getProjectTaskStatistics = async (projectId, userId) => {
+    const response = await api.get(`/grading/projects/${projectId}/users/${userId}/tasks`);
+    return response.data;
+};
+
+export const updateTaskGrade = async (taskId, gradeData) => {
+    const response = await api.post(`/grading/tasks/${taskId}/grade`, gradeData);
+    return response.data;
+};
+
+export const updateGradingSettings = async (projectId, settings) => {
+    const response = await api.put(`/grading/projects/${projectId}/settings`, settings);
+    return response.data;
+};
+
+export const removeUserFromProject = async (projectId, userId) => {
+    const response = await api.delete(`/projects/${projectId}/users/${userId}`);
+    return response.data;
+};
+
 export default api;

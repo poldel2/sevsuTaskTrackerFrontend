@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getProject, updateProject, uploadProjectLogo, getImageUrl } from '../../services/api';
-import { Input, Button, message } from 'antd';
+import { Input, Button, message, Checkbox } from 'antd';
 import { EditOutlined } from '@ant-design/icons';
 import ImageCropper from '../common/ImageCropper';
 import '../../styles/ProjectSettings.css';
@@ -10,7 +10,8 @@ const ProjectDetails = ({ projectId }) => {
     const [formData, setFormData] = useState({
         title: '',
         description: '',
-        logo: ''
+        logo: '',
+        is_private: false
     });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
@@ -28,7 +29,8 @@ const ProjectDetails = ({ projectId }) => {
             setFormData({
                 title: data.title || '',
                 description: data.description || '',
-                logo: data.logo || ''
+                logo: data.logo || '',
+                is_private: data.is_private === true
             });
         } catch (err) {
             setError('Не удалось загрузить данные проекта');
@@ -38,8 +40,12 @@ const ProjectDetails = ({ projectId }) => {
     };
 
     const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
+        const { name, value, checked } = e.target;
+        if (name === 'is_private') {
+            setFormData(prev => ({ ...prev, [name]: checked }));
+        } else {
+            setFormData(prev => ({ ...prev, [name]: value }));
+        }
     };
 
     const handleSave = async () => {
@@ -49,7 +55,11 @@ const ProjectDetails = ({ projectId }) => {
         }
         try {
             setLoading(true);
-            const updatedProject = await updateProject(projectId, formData);
+            const dataToUpdate = {
+                ...formData,
+                is_private: formData.is_private ? 1 : 0
+            };
+            const updatedProject = await updateProject(projectId, dataToUpdate);
             setProject(updatedProject);
             setError('');
             message.success('Данные проекта успешно обновлены');
@@ -153,6 +163,16 @@ const ProjectDetails = ({ projectId }) => {
                                 placeholder="Описание проекта"
                                 rows={4}
                             />
+                        </div>
+
+                        <div className="project-info-field">
+                            <Checkbox
+                                name="is_private"
+                                checked={formData.is_private}
+                                onChange={(e) => handleInputChange(e)}
+                            >
+                                Приватный проект
+                            </Checkbox>
                         </div>
 
                         <div style={{ marginTop: '20px', textAlign: 'center' }}>

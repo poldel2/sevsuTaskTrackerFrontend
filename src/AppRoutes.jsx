@@ -13,6 +13,7 @@ import ProjectSettings from "./components/projects/ProjectSettings.jsx";
 import { logout } from "./services/api";
 import ActivitiesPage from "./components/activities/ActivitiesPage.jsx";
 import UserProfile from "./components/user/UserProfile";
+import GradingPage from './components/grading/GradingPage';
 
 function AppRoutes() {
     return (
@@ -54,6 +55,10 @@ function AppRoutes() {
                             <Route
                                 path="/profile"
                                 element={<PrivateRoute><UserProfile /></PrivateRoute>}
+                            />
+                            <Route
+                                path="/grading"
+                                element={<PrivateRoute><GradingPage /></PrivateRoute>}
                             />
     
                             {/* Перенаправление для неизвестных путей */}
